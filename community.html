@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区 - AI建站及互动社区</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-auto-rows: 320px;
+            row-gap: 0.5rem;
+            column-gap: 0.8rem;
+            justify-items: center;
+            align-items: stretch;
+            max-height: 400px;
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px; /* 卡片圆角 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 卡片阴影 */
+            transition: transform 0.3s ease;
+            width: 100%; /* 让卡片宽度一致 */
+            height: 300px; /* 设置固定高度为300px */
+        }
+        .card .image-container {
+            height: 150px;
+            overflow: hidden;
+            border-radius: 10px 10px 0 0;
+            margin-top: -30px;
+        }
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .card h3 {
+            font-size: 1.2rem;
+            margin: 1rem 0 0.5rem;
+            line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 0 1rem;
+            text-align: center;
+            font-weight: normal;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: rgba(60, 60, 60, 0.9);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .card p {
+            margin: 0;
+            font-size: 0.9rem;
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            color: #666; /* 调整字体颜色为中灰色 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 调整字体 */
+        }
+        .card .likes {
+            display: inline-block;
+            color: rgba(255, 255, 255, 0.8);
+            margin-right: 0.5rem;
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            transition: color 0.3s ease;
+        }
+        .card .likes.liked {
+            color: #f39c12;
+        }
+        .card .date {
+            display: inline-block;
+            color: rgba(255, 255, 255, 0.8);
+            margin-left: 0.5rem;
+            position: absolute;
+            bottom: 1rem;
+            left: auto;
+            right: 1rem;
+        }
+        .card:hover {
+            transform: scale(1.05); /* 鼠标悬停放大效果 */
+        }
+        .card:hover .copy-btn {
+            display: block;
+        }
+        .copy-btn {
+            display: none;
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+        }
+        .float-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            border-radius: 50%;
+            width: 3.5rem;
+            height: 3.5rem;
+        }
+    </style>
+</head>
+<html style="min-height: 100vh; background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradientBG 15s ease infinite;">
+<body style="background: transparent; min-height: 100vh;">
+<style>
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+</style>
+    <header class="container">
+        <nav>
+            <ul>
+                <li><h1 style="color: black;">WebWeaver</h1></li>
+            </ul>
+            <ul>
+                <li><a href="index.html" role="button" class="outline" style="background-color: rgba(255, 255, 255, 0.7);">返回首页</a></li>
+                <li><a href="generate.html" role="button" class="outline" style="background-color: rgba(255, 255, 255, 0.7);">在线生成</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container" style="max-width: calc(350px * 3 + 0.8rem * 2); margin: 0 auto; display: flex; gap: 0.6rem; justify-content: center; padding: 1rem 0; box-sizing: border-box;">
+        <button onclick="sortByPopularity()">🔥 热门</button>
+        <button onclick="sortByNewest()">🆕 最新</button>
+    </div>
+    <main class="container">
+        <div class="filter-bar" style="display: none;">
+            <select style="height: 3em;">
+                <option>所有类型</option>
+                <option>网页</option>
+                <option>组件</option>
+                <option>灵感</option>
+            </select>
+            <button style="font-size: 0.8em; padding: 0.2em 0.4em; height: 3em;" onclick="sortByPopularity()">🔥 热门</button>
+            <button style="font-size: 0.8em; padding: 0.2em 0.4em; height: 3em;">🆕 最新</button>
+        </div>
+        <div class="content-grid">
+            <article class="card" onclick="window.open('https://1mb.club', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>1mb.club</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            <article class="card" onclick="window.open('https://sjmulder.nl', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>sjmulder.nl</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            <article class="card" onclick="window.open('https://gnu.org', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>gnu.org</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            <article class="card" onclick="window.open('https://stripe.com', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>stripe.com</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            <article class="card" onclick="window.open('https://informationisbeautiful.net', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>informationisbeautiful.net</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            
+            <article class="card" onclick="window.open('https://simplecss.org', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>simplecss.org</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            <article class="card" onclick="window.open('https://cssbed.com', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>cssbed.com</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            <article class="card" onclick="window.open('https://informationisbeautiful.net', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>informationisbeautiful.net</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            
+            <article class="card" onclick="window.open('https://html5up.net', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>html5up.net</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            <article class="card" onclick="window.open('https://templated.co', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>templated.co</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            <article class="card" onclick="window.open('https://brutalistwebsites.com', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>brutalistwebsites.com</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            <article class="card" onclick="window.open('https://informationisbeautiful.net', '_blank')">
+                <div class="image-container">
+                    <img src="" alt="作品展示">
+                </div>
+                <h3>informationisbeautiful.net</h3>
+                <p class="likes">❤ 0</p>
+                <p class="date"><i class="fa-regular fa-calendar-days"></i> 2024-11-01</p>
+            </article>
+            
+
+        </div>
+
+    </main>
+    <script>
+        // 排序功能
+        const sortByPopularity = () => {
+            const cards = Array.from(document.querySelectorAll('.card'));
+            cards.sort((a, b) => {
+                const likesA = parseInt(a.querySelector('.likes').textContent.match(/\d+/)[0]);
+                const likesB = parseInt(b.querySelector('.likes').textContent.match(/\d+/)[0]);
+                return likesB - likesA;
+            });
+            const contentGrid = document.querySelector('.content-grid');
+            contentGrid.innerHTML = '';
+            cards.forEach(card => contentGrid.appendChild(card));
+        };
+
+        const sortByNewest = () => {
+            const cards = Array.from(document.querySelectorAll('.card'));
+            cards.sort((a, b) => {
+                const dateA = new Date(a.querySelector('.date').textContent.match(/\d{4}-\d{2}-\d{2}/)[0]);
+                const dateB = new Date(b.querySelector('.date').textContent.match(/\d{4}-\d{2}-\d{2}/)[0]);
+                return dateB - dateA;
+            });
+            const contentGrid = document.querySelector('.content-grid');
+            contentGrid.innerHTML = '';
+            cards.forEach(card => contentGrid.appendChild(card));
+        };
+
+        // 页面加载时初始化卡片
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.card');
+            let currentSortMethod = 'popularity'; // 添加变量跟踪当前排序方式
+
+            // 修改排序按钮点击事件
+            document.querySelector('button[onclick="sortByPopularity()"]').addEventListener('click', () => {
+                currentSortMethod = 'popularity';
+                sortByPopularity();
+            });
+
+            document.querySelector('button[onclick="sortByNewest()"]').addEventListener('click', () => {
+                currentSortMethod = 'newest';
+                sortByNewest();
+            });
+
+            cards.forEach(card => {
+                const likesElement = card.querySelector('p:nth-of-type(1)');
+                let likes = Math.floor(Math.random() * 101); // 生成0到100的随机赞数
+                let liked = false;
+                likesElement.textContent = `❤ ${likes}`;
+
+                // 设置随机日期
+                const date = new Date();
+                date.setFullYear(2024);
+                date.setMonth(Math.floor(Math.random() * 12));
+                date.setDate(Math.floor(Math.random() * 28) + 1);
+                const formattedDate = date.toISOString().split('T')[0];
+                card.querySelector('p:nth-of-type(2)').innerHTML = `<i class="fa-regular fa-calendar-days"></i> ${formattedDate}`;
+
+                // 点赞事件处理
+                likesElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    liked = !liked;
+                    likes = liked ? likes + 1 : likes - 1;
+                    likesElement.textContent = `❤ ${likes}`;
+                    likesElement.classList.toggle('liked', liked);
+                    likesElement.style.color = liked ? '#f39c12' : '#95a5a6';
+
+                    // 如果当前是按点赞数排序，则更新排序
+                    if (currentSortMethod === 'popularity') {
+                        sortByPopularity();
+                    }
+                });
+            });
+
+            // 初始按点赞数排序
+            sortByPopularity();
+        });
+
+        // 加载更多内容
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+                // 加载更多内容逻辑
+            }
+        });
+
+        // 浮动按钮点击事件
+        document.querySelector('.float-btn').addEventListener('click', () => {
+            // 显示提问或上传作品选项
+        });
+    </script>
+    <script>
+        // 生成图片的 API 调用函数
+        async function generateImage(imgElement, keyword) {
+            try {
+                // 这里需要替换为实际的生成图片 API 的 URL 和参数
+                const response = await fetch('https://example.com/image-generator?keyword=' + encodeURIComponent(keyword));
+                if (response.ok) {
+                    const imageUrl = await response.text();
+                    imgElement.src = imageUrl;
+                } else {
+                    console.error('生成图片失败:', response.statusText);
+                }
+            } catch (error) {
+                console.error('请求出错:', error);
+            }
+        }
+    </script>
+    <script>
+const images = [
+    '4ddc1375b9c39c5d218853b06fd83ef.jpg',
+    '5e761ebf96e1087bf43ecf847e001c2.jpg',
+    '27dfd6facfd0e291979f63a28d54671.jpg',
+    '6310bf101ef86e29a624c6beec88dac.jpg',
+    '5683954f0111b8babc8c5c21d3527a7.jpg',
+    '96557766a11884df0ad0ab40b9b066a.jpg',
+    '微信图片_20250318005915.jpg',
+    '微信图片_20250318005919.jpg',
+    '微信图片_20250318005922.jpg',
+    '微信图片_20250318005929.jpg',
+    'c290a269aacde0b269affd0012c637e.jpg',
+    'e483649a84d1540ac717dbea5b555c5.jpg'
+];
+
+document.querySelectorAll('.card img').forEach((img, index) => {
+    img.src = `photo/${images[index % images.length]}`;
+});
+</script>
+</body>
+</html>
