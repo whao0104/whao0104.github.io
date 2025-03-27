@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI建站及互动社区</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+</head>
+<body style="background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh;">
+<style>
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+</style>
+    <header class="container">
+        <nav>
+            <ul>
+                <li><h1 style="color: black;">WebWeaver</h1></li>
+            </ul>
+            <ul>
+                <li><a href="community.html" role="button" class="outline" style="background-color: rgba(255, 255, 255, 0.7);">浏览社区</a></li>
+                <li><a href="generate.html" role="button" class="outline" style="background-color: rgba(255, 255, 255, 0.7);">在线生成</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="container">
+        <h1>输入想法，生成网页</h1>
+        <form action="generate.html" method="GET" style="display: flex; flex-direction: column; gap: 1rem;">
+            <input type="text" name="query" placeholder="例：帮我做一个宠物用品的电商首页，要求清新风格" style="height: 120px; background-color: rgba(255,255,255,0.5); padding: 1rem;">
+            <button type="submit" style="background-color: rgba(23, 162, 184, 0.8); color: white; padding: 1rem; border-radius: 4px;">🚀 开始生成</button>
+        </form>
+        </div>
+
+    </main>
+</body>
+</html>
