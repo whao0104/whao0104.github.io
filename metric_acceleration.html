@@ -1,0 +1,358 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标加速</title>
+    <!-- 引入现代无衬线字体 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- 引入公共样式 -->
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* 页面特有样式 */
+        .acceleration-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1D2129;
+        }
+
+        /* 策略列表 */
+        .strategy-list {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .strategy-list-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #F0F2F5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .strategy-list-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1D2129;
+        }
+
+        .strategy-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid #F0F2F5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .strategy-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .strategy-name {
+            font-size: 14px;
+            color: #1D2129;
+            font-weight: 500;
+        }
+
+        .strategy-desc {
+            font-size: 12px;
+            color: #86909C;
+        }
+
+        .strategy-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: #E8FFF3;
+            color: #00B42A;
+        }
+
+        .status-inactive {
+            background-color: #F5F5F5;
+            color: #86909C;
+        }
+
+        .status-pending {
+            background-color: #FFF7E6;
+            color: #FF7D00;
+        }
+
+        /* 性能对比图表 */
+        .performance-chart-container {
+            height: 300px;
+            margin-bottom: 24px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+        }
+
+        /* 配置表单 */
+        .config-form {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4E5969;
+        }
+
+        .form-input {
+            padding: 10px 16px;
+            border-radius: 4px;
+            border: 1px solid #C9CDD4;
+            font-size: 14px;
+            color: #1D2129;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #165DFF;
+            box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.1);
+        }
+
+        .form-select {
+            padding: 10px 16px;
+            border-radius: 4px;
+            border: 1px solid #C9CDD4;
+            font-size: 14px;
+            color: #1D2129;
+            background-color: white;
+            transition: all 0.2s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #165DFF;
+            box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.1);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background-color: #165DFF;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0E42D2;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #C9CDD4;
+            color: #4E5969;
+        }
+
+        .btn-outline:hover {
+            background-color: #F7F8FA;
+            border-color: #86909C;
+        }
+
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 6px;
+            background-color: #EEF4FF;
+            color: #165DFF;
+        }
+
+        /* 搜索框样式 */
+        .search-container {
+            display: flex;
+            margin-bottom: 24px;
+            gap: 12px;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: 4px;
+            border: 1px solid #C9CDD4;
+            font-size: 14px;
+            color: #1D2129;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #165DFF;
+            box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #86909C;
+        }
+
+        /* 筛选器样式 */
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4E5969;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #C9CDD4;
+            font-size: 14px;
+            color: #1D2129;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-nav">
+        <div class="nav-item" data-section="market" onclick="window.location.href='index.html'">指标市场</div>
+        <div class="nav-item" data-section="modeling" onclick="window.location.href='metric_management.html'">指标建模</div>
+        <div class="nav-item active" data-section="application">指标应用</div>
+        <div class="nav-item" data-section="governance" onclick="window.location.href='governance.html'">指标治理</div>
+        <div class="nav-item" data-section="system" onclick="window.location.href='category_system.html'">系统管理</div>
+    </div>
+    
+    <!-- 侧边导航栏 -->
+    <div class="side-nav" id="side-nav">
+        <div class="side-nav-content" id="market-content" style="display: none;">
+            <div class="side-nav-item" data-page="map" onclick="window.location.href='index.html'">指标市场</div>
+        </div>
+
+        <div class="side-nav-content" id="modeling-content" style="display: none;">
+            <div class="side-nav-item" data-page="metric-management" onclick="window.location.href='metric_management.html'">指标管理</div>
+            <div class="side-nav-item" data-page="dimension-management" onclick="window.location.href='dimension_management.html'">维度管理</div>
+            <div class="side-nav-item" data-page="metric-certification" onclick="window.location.href='metric_certification.html'">指标认证</div>
+            <div class="side-nav-item" data-page="metric-permission" onclick="window.location.href='metric_permission.html'">指标权限</div>
+        </div>
+
+        <div class="side-nav-content" id="application-content" style="display: block;">
+            <div class="side-nav-item" data-page="service-market" onclick="window.location.href='service_market.html'">服务市场</div>
+            <div class="side-nav-item" data-page="metric-api" onclick="window.location.href='metric_api.html'">指标API服务</div>
+            <div class="side-nav-item" data-page="mcp-factory" onclick="window.location.href='mcp_factory.html'">MCP工场</div>
+            <div class="side-nav-item" data-page="agent-market" onclick="window.location.href='agent_market.html'">Agent市场</div>
+            <div class="side-nav-item" data-page="metric-monitoring" onclick="window.location.href='metric_monitoring.html'">指标监控</div>
+            <div class="side-nav-item active" data-page="metric-acceleration" onclick="window.location.href='metric_acceleration.html'">指标加速</div>
+        </div>
+
+        <div class="side-nav-content" id="governance-content" style="display: none;">
+            <div class="side-nav-item" data-page="governance" onclick="window.location.href='governance.html'">指标治理</div>
+        </div>
+
+        <div class="side-nav-content" id="system-content" style="display: none;">
+            <div class="side-nav-item" data-page="category-system" onclick="window.location.href='category_system.html'">指标分类体系</div>
+            <div class="side-nav-item" data-page="metric-tag" onclick="window.location.href='metric_tag.html'">指标标签</div>
+            <div class="side-nav-item" data-page="role-configuration" onclick="window.location.href='role_configuration.html'">角色配置</div>
+        </div>
+    </div>
+
+    <script>
+        // 切换顶部导航时显示对应的侧边菜单
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有顶部导航的active类
+                document.querySelectorAll('.nav-item').forEach(navItem => {
+                    navItem.classList.remove('active');
+                });
+                // 添加当前项的active类
+                this.classList.add('active');
+                
+                // 隐藏所有侧边内容
+                document.querySelectorAll('.side-nav-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // 显示对应的侧边内容
+                const section = this.getAttribute('data-section');
+                document.getElementById(section + '-content').style.display = 'block';
+            });
+        });
+    </script>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1>指标加速</h1>
+            <p>利用AI技术加速指标计算和分析过程，提升数据处理效率</p>
+        </div>
+
+        <div class="placeholder-content">
+            <div class="placeholder-icon">⚡</div>
+            <h2>指标加速页面</h2>
+            <p>此页面用于展示指标加速功能，包括计算优化、智能缓存和分布式处理等技术。</p>
+            <p style="margin-top: 20px;">功能开发中，敬请期待...</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标分类体系</title>
+    <!-- 引入现代无衬线字体 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- 引入公共样式 -->
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* 页面特有样式 */
+        /* ... existing code ... */
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-nav">
+        <div class="nav-item" data-section="market" onclick="window.location.href='index.html'">指标市场</div>
+        <div class="nav-item" data-section="modeling" onclick="window.location.href='metric_management.html'">指标建模</div>
+        <div class="nav-item" data-section="application" onclick="window.location.href='service_market.html'">指标应用</div>
+        <div class="nav-item" data-section="governance" onclick="window.location.href='governance.html'">指标治理</div>
+        <div class="nav-item active" data-section="system">系统管理</div>
+    </div>
+    
+    <!-- 侧边导航栏 -->
+    <div class="side-nav" id="side-nav">
+        <div class="side-nav-content" id="market-content" style="display: none;">
+            <div class="side-nav-item" data-page="map" onclick="window.location.href='index.html'">指标市场</div>
+        </div>
+
+        <div class="side-nav-content" id="modeling-content" style="display: none;">
+            <div class="side-nav-item" data-page="metric-management" onclick="window.location.href='metric_management.html'">指标管理</div>
+            <div class="side-nav-item" data-page="dimension-management" onclick="window.location.href='dimension_management.html'">维度管理</div>
+            <div class="side-nav-item" data-page="metric-certification" onclick="window.location.href='metric_certification.html'">指标认证</div>
+            <div class="side-nav-item" data-page="metric-permission" onclick="window.location.href='metric_permission.html'">指标权限</div>
+        </div>
+
+        <div class="side-nav-content" id="application-content" style="display: none;">
+            <div class="side-nav-item" data-page="service-market" onclick="window.location.href='service_market.html'">服务市场</div>
+            <div class="side-nav-item" data-page="metric-api" onclick="window.location.href='metric_api.html'">指标API服务</div>
+            <div class="side-nav-item" data-page="mcp-factory" onclick="window.location.href='mcp_factory.html'">MCP工场</div>
+            <div class="side-nav-item" data-page="agent-market" onclick="window.location.href='agent_market.html'">Agent市场</div>
+        </div>
+
+        <div class="side-nav-content" id="governance-content" style="display: none;">
+            <div class="side-nav-item" data-page="governance" onclick="window.location.href='governance.html'">指标治理</div>
+        </div>
+
+        <div class="side-nav-content" id="system-content" style="display: block;">
+            <div class="side-nav-item active" data-page="category-system" onclick="window.location.href='category_system.html'">指标分类体系</div>
+            <div class="side-nav-item" data-page="metric-tag" onclick="window.location.href='metric_tag.html'">指标标签</div>
+            <div class="side-nav-item" data-page="role-configuration" onclick="window.location.href='role_configuration.html'">角色配置</div>
+        </div>
+    </div>
+
+    <script>
+        // 切换顶部导航时显示对应的侧边菜单
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有顶部导航的active类
+                document.querySelectorAll('.nav-item').forEach(navItem => {
+                    navItem.classList.remove('active');
+                });
+                // 添加当前项的active类
+                this.classList.add('active');
+                
+                // 隐藏所有侧边内容
+                document.querySelectorAll('.side-nav-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // 显示对应的侧边内容
+                const section = this.getAttribute('data-section');
+                document.getElementById(section + '-content').style.display = 'block';
+            });
+        });
+    </script>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1>指标分类体系</h1>
+            <p>此页面用于管理指标分类体系</p>
+        </div>
+        <!-- 这里可以添加指标分类体系的具体内容 -->
+    </div>
+</body>
+</html>

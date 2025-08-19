@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标管理</title>
+    <!-- 引入现代无衬线字体 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- 引入公共样式 -->
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* 页面特有样式 */
+        .filter-sidebar {
+            position: fixed;
+            top: 64px;
+            left: 180px;
+            bottom: 0;
+            width: 240px;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 20px;
+            z-index: 800;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            border-left: 1px solid #F0F2F5;
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1D2129;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .toggle-icon {
+            color: #86909C;
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #4E5969;
+        }
+
+        .filter-checkbox {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 6px 0 0 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #165DFF;
+            box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.1);
+        }
+
+        .search-btn {
+            background-color: #165DFF;
+            color: white;
+            border: none;
+            border-radius: 0 6px 6px 0;
+            padding: 0 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .search-btn:hover {
+            background-color: #0E42D2;
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1D2129;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .toggle-icon {
+            color: #86909C;
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #4E5969;
+        }
+
+        .filter-checkbox {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .filter-checkbox:checked {
+            background-color: #165DFF;
+            border-color: #165DFF;
+        }
+
+        .reset-btn, .apply-btn {
+            width: 100%;
+            padding: 8px 0;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .reset-btn {
+            background-color: #F2F3F5;
+            color: #4E5969;
+        }
+
+        .reset-btn:hover {
+            background-color: #E5E6EB;
+        }
+
+        .apply-btn {
+            background-color: #165DFF;
+            color: white;
+        }
+
+        .apply-btn:hover {
+            background-color: #0E42D2;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            margin-left: 460px;
+            margin-top: 68px;
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            height: calc(100vh - 68px);
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1D2129;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: #4E5969;
+            font-size: 14px;
+        }
+
+        /* 顶部搜索栏 */
+        .top-search-bar {
+            background-color: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+        .filter-btn {
+            background-color: #EEF4FF;
+            color: #165DFF;
+            border: none;
+            border-radius: 6px;
+            padding: 0 16px;
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background-color: #D6E4FF;
+        }
+
+        .filter-btn.active {
+            background-color: #165DFF;
+            color: white;
+        }
+
+        .advanced-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .filter-item label {
+            color: #4E5969;
+            font-weight: 500;
+        }
+
+        .filter-input {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            color: #1D2129;
+            min-width: 180px;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #165DFF;
+            box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.1);
+        }
+
+        .tag-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            background-color: #F2F3F5;
+            color: #4E5969;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tag:hover {
+            background-color: #E5E6EB;
+        }
+
+        .tag.active {
+            background-color: #EEF4FF;
+            color: #165DFF;
+        }
+
+        .more-tags {
+            background-color: #F7F8FA;
+            color: #86909C;
+        }
+
+        /* 表格容器 */
+        .metrics-table-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .metrics-table th,
+        .metrics-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #F0F2F5;
+        }
+
+        .metrics-table th {
+            background-color: #F7F8FA;
+            font-weight: 600;
+            color: #4E5969;
+            font-size: 14px;
+        }
+
+        .metrics-table tr:hover {
+            background-color: #F7FAFC;
+        }
+
+        .certification-status {
+            font-weight: 500;
+        }
+
+        .certified {
+            color: #165DFF;
+        }
+
+        .not-certified {
+            color: #F53F3F;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-right: 6px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .view-details {
+            background-color: #165DFF;
+            color: white;
+        }
+
+        .view-details:hover {
+            background-color: #0E42D2;
+        }
+
+        .change-record {
+            background-color: #F2F3F5;
+            color: #4E5969;
+        }
+
+        .change-record:hover {
+            background-color: #E5E6EB;
+        }
+
+        .apply-permission {
+            background-color: #F7BA1E;
+            color: white;
+        }
+
+        .apply-permission:hover {
+            background-color: #E6A61C;
+        }
+
+        /* 分页样式 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+            gap: 8px;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .page-btn:hover {
+            border-color: #165DFF;
+            color: #165DFF;
+        }
+
+        .page-btn.active {
+            background-color: #165DFF;
+            color: white;
+            border-color: #165DFF;
+        }
+
+        /* 卡片悬浮详情页 */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .metric-detail-card {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1001;
+        }
+
+        .card-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #F0F2F5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1D2129;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #86909C;
+        }
+
+        .card-content {
+            padding: 24px;
+        }
+
+        .detail-item {
+            margin-bottom: 16px;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4E5969;
+            margin-bottom: 8px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #1D2129;
+        }
+
+        .bloodline-graph {
+            padding: 16px;
+            background-color: #F7F8FA;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .node {
+            padding: 8px 12px;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .arrow {
+            font-size: 20px;
+            color: #86909C;
+        }
+
+        .card-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #F0F2F5;
+            background-color: #F7F8FA;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .history-record {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .record-item {
+            font-size: 12px;
+            color: #86909C;
+        }
+
+        /* 右下角悬浮按钮 */
+        .floating-action-button {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 900;
+        }
+
+        .fab-main {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #165DFF;
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(22, 93, 255, 0.4);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab-main:hover {
+            background-color: #0E42D2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(22, 93, 255, 0.5);
+        }
+
+        .fab-options {
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .fab-option {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: white;
+            color: #165DFF;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-nav">
+        <div class="nav-item" data-section="market" onclick="window.location.href='index.html'">指标市场</div>
+        <div class="nav-item active" data-section="modeling">指标建模</div>
+        <div class="nav-item" data-section="application" onclick="window.location.href='service_market.html'">指标应用</div>
+        <div class="nav-item" data-section="governance" onclick="window.location.href='governance.html'">指标治理</div>
+        <div class="nav-item" data-section="system" onclick="window.location.href='category_system.html'">系统管理</div>
+    </div>
+    
+    <!-- 侧边导航栏 -->
+    <div class="side-nav" id="side-nav">
+        <div class="side-nav-content" id="market-content" style="display: none;">
+            <div class="side-nav-item" data-page="map" onclick="window.location.href='index.html'">指标市场</div>
+        </div>
+
+        <div class="side-nav-content" id="modeling-content" style="display: block;">
+            <div class="side-nav-item active" data-page="metric-management" onclick="window.location.href='metric_management.html'">指标管理</div>
+            <div class="side-nav-item" data-page="dimension-management" onclick="window.location.href='dimension_management.html'">维度管理</div>
+            <div class="side-nav-item" data-page="metric-certification" onclick="window.location.href='metric_certification.html'">指标认证</div>
+            <div class="side-nav-item" data-page="metric-permission" onclick="window.location.href='metric_permission.html'">指标权限</div>
+        </div>
+
+        <div class="side-nav-content" id="application-content" style="display: none;">
+            <div class="side-nav-item" data-page="service-market" onclick="window.location.href='service_market.html'">服务市场</div>
+            <div class="side-nav-item" data-page="metric-api" onclick="window.location.href='metric_api.html'">指标API服务</div>
+            <div class="side-nav-item" data-page="mcp-factory" onclick="window.location.href='mcp_factory.html'">MCP工场</div>
+            <div class="side-nav-item" data-page="agent-market" onclick="window.location.href='agent_market.html'">Agent市场</div>
+        </div>
+
+        <div class="side-nav-content" id="governance-content" style="display: none;">
+            <div class="side-nav-item" data-page="governance" onclick="window.location.href='governance.html'">指标治理</div>
+        </div>
+
+        <div class="side-nav-content" id="system-content" style="display: none;">
+            <div class="side-nav-item" data-page="category-system" onclick="window.location.href='category_system.html'">指标分类体系</div>
+            <div class="side-nav-item" data-page="metric-tag" onclick="window.location.href='metric_tag.html'">指标标签</div>
+            <div class="side-nav-item" data-page="role-configuration" onclick="window.location.href='role_configuration.html'">角色配置</div>
+        </div>
+    </div>
+
+    <script>
+        // 生成随机指标数据
+        function generateRandomMetrics(count) {
+            const businessDomains = ['移动端', 'PC端', 'OTT端'];
+            const themeDomains = ['收入', '用户', '活跃度', '内容', '转化', '留存'];
+            const applicationTypes = ['灯塔、TAB', '数据分析', '报表', 'API服务', '决策支持'];
+            const dimensions = ['用户活跃度、国家', '用户类型、渠道', '时间、地域', '设备、版本', '内容类型、分类'];
+            const owners = ['skyhwang', 'system', 'zhangwei', 'lisi', 'wangwu'];
+            const tags = ['会员', '新客', '转化', '收入', '活跃', '留存', '内容', '推荐', '搜索', '广告'];
+            const metricNames = [
+                '日均活跃用户数', '新增注册用户数', '次日留存率', '付费转化率',
+                'ARPU值', '内容点击率', '平均观看时长', '会员订阅率',
+                '广告曝光量', '搜索点击率', '视频完播率', '评论互动率',
+                '分享率', '页面加载时间', '错误率', '用户满意度'
+            ];
+
+            const metrics = [];
+            let baseId = 70933; // 从70933开始，避免与现有数据冲突
+
+            for (let i = 0; i < count; i++) {
+                const id = baseId + i;
+                const name = metricNames[i % metricNames.length] + (Math.random() > 0.5 ? '(' + Math.floor(Math.random() * 1000) + ')' : '');
+                const businessDomain = businessDomains[Math.floor(Math.random() * businessDomains.length)];
+                const themeDomain = themeDomains[Math.floor(Math.random() * themeDomains.length)];
+                const isCertified = Math.random() > 0.3;
+                const businessDefinition = name + ' = ' + Math.random().toString(36).substring(2, 10) + ' / ' + Math.random().toString(36).substring(2, 10);
+                const applicationType = applicationTypes[Math.floor(Math.random() * applicationTypes.length)];
+                const usage = Math.floor(Math.random() * 1000) + 10;
+                const dimension = dimensions[Math.floor(Math.random() * dimensions.length)];
+                const owner = owners[Math.floor(Math.random() * owners.length)];
+
+                // 随机生成1-3个标签
+                const tagCount = Math.floor(Math.random() * 3) + 1;
+                const metricTags = [];
+                for (let j = 0; j < tagCount; j++) {
+                    const tagIndex = Math.floor(Math.random() * tags.length);
+                    if (!metricTags.includes(tags[tagIndex])) {
+                        metricTags.push(tags[tagIndex]);
+                    }
+                }
+
+                metrics.push({
+                    id, name, businessDomain, themeDomain, isCertified,
+                    businessDefinition, applicationType, usage, dimension,
+                    owner, tags: metricTags
+                });
+            }
+
+            return metrics;
+        }
+
+        // 绑定详情按钮事件
+        function bindDetailButtons() {
+            const viewDetailBtns = document.querySelectorAll('.btn.view-details');
+            const detailCard = document.getElementById('metric-detail-card');
+            const closeDetailBtn = document.getElementById('close-detail-card');
+            const overlay = document.querySelector('.overlay');
+
+            viewDetailBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const metricId = this.getAttribute('data-metric-id');
+                    const metricRow = document.querySelector(`.metric-row[data-metric-id='${metricId}']`);
+
+                    if (metricRow) {
+                        // 更新详情卡片内容
+                        document.getElementById('detail-metric-name').textContent = metricRow.cells[1].textContent + 
+                            (metricRow.cells[4].classList.contains('certified') ? ' (已认证)' : ' (非认证)');
+                        document.getElementById('detail-business-definition').textContent = metricRow.cells[5].textContent;
+
+                        // 模拟技术逻辑和计算周期
+                        const techLogic = ['sum(revenue)/count(device)', 'ods.order_count', 'dws.user_active', 'dwd.content_click', 'sum(play_time)/count(user)'][Math.floor(Math.random() * 5)];
+                        const calcCycle = ['T+1', 'T+0', '日', '周', '月'][Math.floor(Math.random() * 5)];
+
+                        document.getElementById('detail-technical-logic').textContent = techLogic;
+                        document.getElementById('detail-calculation-cycle').textContent = calcCycle;
+                    }
+
+                    detailCard.style.display = 'block';
+                    overlay.style.display = 'block';
+                });
+            });
+        }
+
+        // 渲染指标数据到表格
+        function renderMetrics(metrics) {
+            const tableBody = document.getElementById('metrics-table-body');
+            // 保留前两行原始数据
+            const originalRows = tableBody.innerHTML;
+            tableBody.innerHTML = originalRows;
+
+            metrics.forEach(metric => {
+                const row = document.createElement('tr');
+                row.className = 'metric-row';
+                row.setAttribute('data-metric-id', metric.id);
+
+                const certificationStatus = metric.isCertified ? '已认证 ⭐' : '非认证 🟡';
+                const certificationClass = metric.isCertified ? 'certified' : 'not-certified';
+
+                // 生成标签HTML
+                let tagsHTML = '';
+                metric.tags.forEach(tag => {
+                    tagsHTML += `<span class="tag">${tag}</span>`;
+                });
+
+                row.innerHTML = `
+                    <td>${metric.id}</td>
+                    <td>${metric.name}</td>
+                    <td>${metric.businessDomain}</td>
+                    <td>${metric.themeDomain}</td>
+                    <td class="certification-status ${certificationClass}">${certificationStatus}</td>
+                    <td>${metric.businessDefinition}</td>
+                    <td>${metric.applicationType}</td>
+                    <td>${metric.usage}</td>
+                    <td>${metric.dimension}</td>
+                    <td>${metric.owner}</td>
+                    <td>${tagsHTML}</td>
+                    <td>
+                        <button class="btn view-details" data-metric-id="${metric.id}">详情</button>
+                        <button class="btn change-record">变更记录</button>
+                        <button class="btn apply-permission">申请权限</button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+
+            // 重新绑定详情按钮事件
+            bindDetailButtons();
+        }
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 创建遮罩层
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            document.body.appendChild(overlay);
+
+            // 生成并渲染15条随机指标数据
+            const randomMetrics = generateRandomMetrics(15);
+            renderMetrics(randomMetrics);
+
+            // 绑定关闭详情卡片事件
+            const detailCard = document.getElementById('metric-detail-card');
+            const closeDetailBtn = document.getElementById('close-detail-card');
+
+            closeDetailBtn.addEventListener('click', function() {
+                detailCard.style.display = 'none';
+                overlay.style.display = 'none';
+            });
+
+            // 点击遮罩层关闭详情卡片
+            overlay.addEventListener('click', function() {
+                detailCard.style.display = 'none';
+                overlay.style.display = 'none';
+            });
+
+            // 悬浮创建按钮功能
+            const fabMain = document.querySelector('.fab-main');
+            const fabOptions = document.querySelector('.fab-options');
+
+            fabMain.addEventListener('click', function() {
+                fabOptions.style.display = fabOptions.style.display === 'flex' ? 'none' : 'flex';
+            });
+
+            // 点击页面其他地方关闭悬浮选项
+            document.addEventListener('click', function(event) {
+                if (!fabMain.contains(event.target) && !fabOptions.contains(event.target)) {
+                    fabOptions.style.display = 'none';
+                }
+            });
+
+            // 筛选功能模拟
+            const searchInput = document.getElementById('metric-search');
+            const searchBtn = document.querySelector('.search-btn');
+            const myMetricsBtn = document.getElementById('my-metrics-btn');
+            const filterSidebar = document.querySelector('.filter-sidebar');
+            const resetFilterBtn = filterSidebar.querySelector('.reset-btn');
+            const applyFilterBtn = filterSidebar.querySelector('.apply-btn');
+
+            // 存储当前筛选条件
+            const currentFilters = {
+                searchTerm: '',
+                businessDomains: [],
+                themeDomains: [],
+                certificationStatus: [],
+                otherFilters: [],
+                tags: [],
+                myMetrics: false
+            };
+
+            function updateCurrentFilters() {
+                // 更新搜索筛选
+                currentFilters.searchTerm = searchInput.value.toLowerCase();
+
+                // 更新业务域筛选
+                currentFilters.businessDomains = Array.from(
+                    filterSidebar.querySelectorAll('.filter-group:nth-child(1) .filter-checkbox:checked')
+                ).map(checkbox => checkbox.value);
+
+                // 更新主题域筛选
+                currentFilters.themeDomains = Array.from(
+                    filterSidebar.querySelectorAll('.filter-group:nth-child(2) .filter-checkbox:checked')
+                ).map(checkbox => checkbox.value);
+
+                // 更新标签筛选
+                currentFilters.tags = Array.from(
+                    filterSidebar.querySelectorAll('.filter-group:nth-child(3) .filter-checkbox:checked')
+                ).map(checkbox => checkbox.value);
+
+                // 更新认证状态筛选
+                currentFilters.certificationStatus = Array.from(
+                    filterSidebar.querySelectorAll('.filter-group:nth-child(4) .filter-checkbox:checked')
+                ).map(checkbox => checkbox.value);
+
+                // 更新其他筛选
+                currentFilters.otherFilters = Array.from(
+                    filterSidebar.querySelectorAll('.filter-group:nth-child(5) .filter-checkbox:checked')
+                ).map(checkbox => checkbox.value);
+
+                // 更新"我管理的"筛选
+                currentFilters.myMetrics = myMetricsBtn.classList.contains('active');
+            }
+
+            function filterMetrics() {
+                updateCurrentFilters();
+                const metricRows = document.querySelectorAll('.metric-row');
+
+                metricRows.forEach(row => {
+                    const metricId = row.getAttribute('data-metric-id');
+                    const metricName = row.cells[1].textContent.toLowerCase();
+                    const businessDomain = row.cells[2].textContent.toLowerCase();
+                    const themeDomain = row.cells[3].textContent.toLowerCase();
+                    const certificationStatus = row.cells[4].classList.contains('certified') ? 'certified' : 'not-certified';
+                    const owner = row.cells[9].textContent.toLowerCase();
+                    const tags = Array.from(row.cells[10].querySelectorAll('.tag')).map(tag => tag.textContent.toLowerCase());
+
+                    // 搜索词筛选
+                    const matchesSearch = currentFilters.searchTerm === '' || 
+                                          metricId.includes(currentFilters.searchTerm) || 
+                                          metricName.includes(currentFilters.searchTerm);
+
+                    // 业务域筛选
+                    const matchesBusinessDomain = currentFilters.businessDomains.length === 0 || 
+                                                  currentFilters.businessDomains.includes(businessDomain);
+
+                    // 主题域筛选
+                    const matchesThemeDomain = currentFilters.themeDomains.length === 0 || 
+                                               currentFilters.themeDomains.includes(themeDomain);
+
+                    // 认证状态筛选
+                    const matchesCertification = currentFilters.certificationStatus.length === 0 || 
+                                                 currentFilters.certificationStatus.includes(certificationStatus);
+
+                    // 标签筛选
+                    const matchesTags = currentFilters.tags.length === 0 || 
+                                        currentFilters.tags.some(tag => tags.includes(tag.toLowerCase()));
+
+                    // 其他筛选
+                    let matchesOtherFilters = true;
+                    if (currentFilters.otherFilters.includes('my-metrics') && owner !== 'skyhwang') {
+                        matchesOtherFilters = false;
+                    }
+
+                    // "我管理的"筛选
+                    const matchesMyMetrics = !currentFilters.myMetrics || owner === 'skyhwang';
+
+                    // 如果所有筛选条件都满足，则显示行
+                    row.style.display = (matchesSearch && matchesBusinessDomain && 
+                                         matchesThemeDomain && matchesCertification && matchesTags && 
+                                         matchesOtherFilters && matchesMyMetrics) ? '' : 'none';
+                });
+            }
+
+            // 绑定搜索按钮事件
+            searchBtn.addEventListener('click', filterMetrics);
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    filterMetrics();
+                }
+            });
+
+            // 绑定"我管理的"按钮事件
+            myMetricsBtn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                filterMetrics();
+            });
+
+            // 绑定左侧筛选事件
+            const checkboxes = document.querySelectorAll('.filter-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // 不需要立即筛选，等待用户点击应用按钮
+                });
+            });
+
+            // 绑定重置和应用筛选按钮事件
+            resetFilterBtn.addEventListener('click', function() {
+                // 重置所有复选框
+                document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                // 重置"我管理的"按钮
+                myMetricsBtn.classList.remove('active');
+                // 重置搜索输入
+                searchInput.value = '';
+                // 应用筛选
+                filterMetrics();
+            });
+
+            applyFilterBtn.addEventListener('click', filterMetrics);
+
+            // 分页功能
+            const pageBtns = document.querySelectorAll('.page-btn[data-page]');
+            pageBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有页按钮的active类
+                    pageBtns.forEach(pageBtn => {
+                        pageBtn.classList.remove('active');
+                    });
+                    // 添加当前页按钮的active类
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1>指标管理</h1>
+        </div>
+
+        <!-- 三栏布局容器 -->
+        <div class="three-column-layout">
+            <!-- 左侧筛选栏 -->
+            <div class="filter-sidebar">
+                <!-- 删除搜索容器 -->
+
+                <div class="filter-group">
+                    <div class="filter-group-title">
+                        <span>业务域</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="filter-options">
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="mobile"> 移动端</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="pc"> PC端</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="ott"> OTT端</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-group-title">
+                        <span>主题域</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="filter-options">
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="revenue"> 收入</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="user"> 用户</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="activity"> 活跃度</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="content"> 内容</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="conversion"> 转化</label>
+                    </div>
+                </div>
+
+                <!-- 新增标签筛选组 -->
+                <div class="filter-group">
+                    <div class="filter-group-title">
+                        <span>标签筛选</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="filter-options tag-filter-options">
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="会员"> 会员</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="收入"> 收入</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="用户"> 用户</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="活跃度"> 活跃度</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="新客"> 新客</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="转化"> 转化</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-group-title">
+                        <span>认证状态</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="filter-options">
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="certified"> 已认证指标 (⭐)</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="not-certified"> 非认证指标 (🟡)</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-group-title">
+                        <span>其他筛选</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="filter-options">
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="my-metrics"> 我的指标</label>
+                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="frequent-metrics"> 高频使用指标</label>
+                    </div>
+                </div>
+
+                <button class="reset-btn">重置筛选</button>
+                <button class="apply-btn">应用筛选</button>
+            </div>
+
+            <!-- 中间和右侧内容区 -->
+            <div class="content-area">
+                <!-- 顶部搜索栏 -->
+                <div class="top-search-bar">
+                    <div class="search-box">
+                        <input type="text" placeholder="搜索指标ID/指标名称..." id="metric-search" class="search-input">
+                        <button class="search-btn"><i class="icon-search"></i></button>
+                        <button class="filter-btn" id="my-metrics-btn">我管理的</button>
+                    </div>
+
+                    <div class="advanced-filters">
+                        <!-- 删除创建人和标签筛选 -->
+                    </div>
+
+                    <!-- 主体列表区 -->
+                    <div class="metrics-table-container card">
+                        <table class="metrics-table">
+                            <thead>
+                                <tr>
+                                    <th>指标ID</th>
+                                    <th>指标名称</th>
+                                    <th>业务域</th>
+                                    <th>主题域</th>
+                                    <th>认证状态</th>
+                                    <th>指标业务口径</th>
+                                    <th>应用类型</th>
+                                    <th>使用量</th>
+                                    <th>指标维度</th>
+                                    <th>负责人</th>
+                                    <th>标签</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="metrics-table-body">
+                                <tr class="metric-row" data-metric-id="70931">
+                                    <td>70931</td>
+                                    <td>人均会员品类站内+站外总收入(QIMEI36-VUID)</td>
+                                    <td>移动端</td>
+                                    <td>收入</td>
+                                    <td class="certification-status certified">已认证 ⭐</td>
+                                    <td>人均会员品类站内+站外总收入(QIMEI36-VUID) = 会员品类站内+站外总收入(QIMEI36-VUID) / 实验虚拟活跃设备数</td>
+                                    <td>灯塔、TAB</td>
+                                    <td>100</td>
+                                    <td>用户活跃度、国家</td>
+                                    <td>skyhwang</td>
+                                    <td><span class="tag">会员</span></td>
+                                    <td>
+                                        <button class="btn view-details" data-metric-id="70931">详情</button>
+                                        <button class="btn change-record">变更记录</button>
+                                        <button class="btn apply-permission">申请权限</button>
+                                    </td>
+                                </tr>
+                                <tr class="metric-row" data-metric-id="70932">
+                                    <td>70932</td>
+                                    <td>转化率_新客</td>
+                                    <td>PC端</td>
+                                    <td>用户</td>
+                                    <td class="certification-status not-certified">非认证 🟡</td>
+                                    <td>转化率_新客 = 新客首日订单 / UV</td>
+                                    <td>数据分析</td>
+                                    <td>50</td>
+                                    <td>用户类型、渠道</td>
+                                    <td>system</td>
+                                    <td><span class="tag">新客</span><span class="tag">转化</span></td>
+                                    <td>
+                                        <button class="btn view-details" data-metric-id="70932">详情</button>
+                                        <button class="btn change-record">变更记录</button>
+                                        <button class="btn apply-permission">申请权限</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <button class="page-btn" id="prev-page">上一页</button>
+                        <button class="page-btn active" data-page="1">1</button>
+                        <button class="page-btn" data-page="2">2</button>
+                        <button class="page-btn" data-page="3">3</button>
+                        <button class="page-btn" id="next-page">下一页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片悬浮详情页 -->
+        <div class="metric-detail-card" id="metric-detail-card">
+            <div class="card-header">
+                <h3 id="detail-metric-name">转化率_新客（非认证）</h3>
+                <button class="close-btn" id="close-detail-card">×</button>
+            </div>
+            <div class="card-content">
+                <div class="detail-item">
+                    <div class="detail-label">业务口径</div>
+                    <div class="detail-value" id="detail-business-definition">新客首日订单/UV</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">技术逻辑</div>
+                    <div class="detail-value" id="detail-technical-logic">ods.order_count</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">计算周期</div>
+                    <div class="detail-value" id="detail-calculation-cycle">T+1</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">血缘图谱</div>
+                    <div class="detail-value bloodline-graph" id="detail-bloodline-graph">
+                        <div class="node">ods.order</div>
+                        <div class="arrow">↓</div>
+                        <div class="node">dim.user</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="history-record">
+                    <div class="record-item">08/11 skyhwang通过「拖拉拽分析」创建</div>
+                    <div class="record-item">08/11 AI补充技术逻辑标签</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右下角悬浮按钮 -->
+        <div class="floating-action-button">
+            <button class="fab-main">创建指标</button>
+            <div class="fab-options">
+                <button class="fab-option" id="create-smart">智能生成</button>
+                <button class="fab-option" id="create-manual">手动配置</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<style>
+    /* 顶部搜索栏 */
+    .top-search-bar {
+        background-color: white;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        margin-bottom: 24px;
+    }
+
+    .search-box {
+        display: flex;
+        margin-bottom: 16px;
+    }
+
+    .filter-btn {
+        background-color: #EEF4FF;
+        color: #165DFF;
+        border: none;
+        border-radius: 6px;
+        padding: 0 16px;
+        margin-left: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+        background-color: #D6E4FF;
+    }
+
+    .filter-btn.active {
+        background-color: #165DFF;
+        color: white;
+    }
+
+    .advanced-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .filter-item label {
+        color: #4E5969;
+        font-weight: 500;
+    }
+
+    .filter-input {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+        color: #1D2129;
+        min-width: 180px;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: #165DFF;
+        box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.1);
+    }
+
+    .tag-filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .tag {
+        padding: 4px 12px;
+        background-color: #F2F3F5;
+        color: #4E5969;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .tag:hover {
+        background-color: #E5E6EB;
+    }
+
+    .tag.active {
+        background-color: #EEF4FF;
+        color: #165DFF;
+    }
+
+    .more-tags {
+        background-color: #F7F8FA;
+        color: #86909C;
+    }
+
+    /* 表格容器 */
+    .metrics-table-container {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .metrics-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .metrics-table th,
+    .metrics-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #F0F2F5;
+    }
+
+    .metrics-table th {
+        background-color: #F7F8FA;
+        font-weight: 600;
+        color: #4E5969;
+        font-size: 14px;
+    }
+
+    .metrics-table tr:hover {
+        background-color: #F7FAFC;
+    }
+
+    .certification-status {
+        font-weight: 500;
+    }
+
+    .certified {
+        color: #165DFF;
+    }
+
+    .not-certified {
+        color: #F53F3F;
+    }
+
+    /* 按钮样式 */
+    .btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        margin-right: 6px;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .view-details {
+        background-color: #165DFF;
+        color: white;
+    }
+
+    .view-details:hover {
+        background-color: #0E42D2;
+    }
+
+    .change-record {
+        background-color: #F2F3F5;
+        color: #4E5969;
+    }
+
+    .change-record:hover {
+        background-color: #E5E6EB;
+    }
+
+    .apply-permission {
+        background-color: #F7BA1E;
+        color: white;
+    }
+
+    .apply-permission:hover {
+        background-color: #E6A61C;
+    }
+
+    /* 分页样式 */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 24px;
+        gap: 8px;
+    }
+
+    .page-btn {
+        padding: 6px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background-color: white;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .page-btn:hover {
+        border-color: #165DFF;
+        color: #165DFF;
+    }
+
+    .page-btn.active {
+        background-color: #165DFF;
+        color: white;
+        border-color: #165DFF;
+    }
+
+    /* 卡片悬浮详情页 */
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+
+    .metric-detail-card {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 600px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        z-index: 1001;
+    }
+
+    .card-header {
+        padding: 16px 24px;
+        border-bottom: 1px solid #F0F2F5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1D2129;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #86909C;
+    }
+
+    .card-content {
+        padding: 24px;
+    }
+
+    .detail-item {
+        margin-bottom: 16px;
+    }
+
+    .detail-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #4E5969;
+        margin-bottom: 8px;
+    }
+
+    .detail-value {
+        font-size: 14px;
+        color: #1D2129;
+    }
+
+    .bloodline-graph {
+        padding: 16px;
+        background-color: #F7F8FA;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .node {
+        padding: 8px 12px;
+        background-color: white;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+    }
+
+    .arrow {
+        font-size: 20px;
+        color: #86909C;
+    }
+
+    .card-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #F0F2F5;
+        background-color: #F7F8FA;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .history-record {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .record-item {
+        font-size: 12px;
+        color: #86909C;
+    }
+
+    /* 右下角悬浮按钮 */
+    .floating-action-button {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 900;
+    }
+
+    .fab-main {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background-color: #165DFF;
+        color: white;
+        border: none;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(22, 93, 255, 0.4);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .fab-main:hover {
+        background-color: #0E42D2;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(22, 93, 255, 0.5);
+    }
+
+    .fab-options {
+        display: none;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .fab-option {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: white;
+        color: #165DFF;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .fab-option:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
