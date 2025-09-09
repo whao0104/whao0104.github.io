@@ -1014,6 +1014,39 @@
 
                 alert(message);
             });
+            
+            // 筛选指标函数 - 解决ReferenceError: filterMetrics is not defined错误
+            function filterMetrics() {
+                // 获取所有激活的筛选器
+                const activeFilters = document.querySelectorAll('.filter-item.active');
+                
+                // 如果没有激活的筛选器，显示所有指标卡片
+                if (activeFilters.length === 0) {
+                    metricCards.forEach(card => {
+                        card.style.display = '';
+                    });
+                    return;
+                }
+                
+                // 简单的筛选逻辑：如果指标卡片包含任何一个激活的筛选条件，就显示它
+                // 注意：实际应用中可能需要根据业务需求实现更复杂的筛选逻辑
+                metricCards.forEach(card => {
+                    let shouldShow = false;
+                    
+                    // 检查卡片是否匹配任何一个激活的筛选条件
+                    activeFilters.forEach(filter => {
+                        const filterText = filter.textContent.trim();
+                        
+                        // 这里是简单的匹配逻辑，实际应用中可能需要根据业务需求调整
+                        if (card.textContent.includes(filterText)) {
+                            shouldShow = true;
+                        }
+                    });
+                    
+                    // 根据匹配结果显示或隐藏卡片
+                    card.style.display = shouldShow ? '' : 'none';
+                });
+            }
         });
     </script>
 </body>

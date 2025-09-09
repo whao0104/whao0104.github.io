@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标通 - 空间关联管理</title>
+    <!-- 引入现代无衬线字体 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- 引入公共样式 -->
+    <link rel="stylesheet" href="common.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        danger: '#EF4444',
+                        success: '#10B981'
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+        }
+    </style>
+    <style>
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F7F8FA;
+            color: #1D2129;
+            display: flex;
+        }
+
+        /* 顶部导航样式 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            background-color: #165DFF;
+            color: white;
+            padding: 16px 24px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item {
+            padding: 6px 16px;
+            margin-right: 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            background-color: rgba(255,255,255,0.2);
+            font-weight: 600;
+        }
+
+        /* 侧边导航样式 */
+        .side-nav {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+            width: 180px;
+            background-color: white;
+            box-shadow: 1px 0 2px rgba(0, 0, 0, 0.05);
+            padding: 20px 0;
+            z-index: 900;
+            overflow-y: auto;
+        }
+
+        .side-nav-content {
+            margin-bottom: 12px;
+        }
+
+        .side-nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            color: #4E5969;
+            position: relative;
+            border-radius: 8px;
+            margin: 4px 0;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .side-nav-item:hover {
+            background-color: #f5f7fa;
+        }
+
+        .side-nav-item.active {
+            color: #165DFF;
+            background-color: #EEF4FF;
+            font-weight: 600;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            margin-left: 180px;
+            margin-top: 64px;
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            height: calc(100vh - 64px);
+            box-sizing: border-box;
+        }
+
+        /* 自定义动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-nav">
+        <div class="nav-item" data-section="market" onclick="window.location.href='index.html'">指标市场</div>
+        <div class="nav-item" data-section="modeling" onclick="window.location.href='metric_management.html'">指标建模</div>
+        <div class="nav-item" data-section="application" onclick="window.location.href='service_market.html'">指标应用</div>
+        <div class="nav-item" data-section="governance" onclick="window.location.href='governance.html'">指标治理</div>
+        <div class="nav-item active" data-section="system" onclick="window.location.href='category_system.html'">系统管理</div>
+    </div>
+    
+    <!-- 侧边导航栏 -->
+    <div class="side-nav" id="side-nav">
+        <div class="side-nav-content" id="market-content" style="display: none;">
+            <div class="side-nav-item" data-page="map" onclick="window.location.href='index.html'">指标市场</div>
+        </div>
+
+        <div class="side-nav-content" id="modeling-content" style="display: none;">
+            <div class="side-nav-item" data-page="metric-management" onclick="window.location.href='metric_management.html'">指标管理</div>
+            <div class="side-nav-item" data-page="dimension-management" onclick="window.location.href='dimension_management.html'">维度管理</div>
+            <div class="side-nav-item" data-page="metric-certification" onclick="window.location.href='metric_certification.html'">指标认证</div>
+            <div class="side-nav-item" data-page="metric-permission" onclick="window.location.href='metric_permission.html'">指标权限</div>
+        </div>
+
+        <div class="side-nav-content" id="application-content" style="display: none;">
+            <div class="side-nav-item" data-page="service-market" onclick="window.location.href='service_market.html'">服务市场</div>
+            <div class="side-nav-item" data-page="metric-api" onclick="window.location.href='metric_api.html'">指标API服务</div>
+            <div class="side-nav-item" data-page="mcp-factory" onclick="window.location.href='mcp_factory.html'">MCP工场</div>
+            <div class="side-nav-item" data-page="agent-market" onclick="window.location.href='agent_market.html'">Agent市场</div>
+        </div>
+
+        <div class="side-nav-content" id="governance-content" style="display: none;">
+            <div class="side-nav-item" data-page="governance" onclick="window.location.href='governance.html'">指标治理</div>
+        </div>
+
+        <div class="side-nav-content" id="system-content" style="display: block;">
+            <div class="side-nav-item" data-page="category-system" onclick="window.location.href='category_system.html'">分类与标签管理</div>
+            <div class="side-nav-item active" data-page="space-association" onclick="window.location.href='space_association.html'">空间关联管理</div>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+            <!-- 页面标题和操作区 -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-dark">空间关联</h1>
+                </div>
+                <div class="flex items-center space-x-4 w-full md:w-auto">
+                    <div class="relative flex-1 md:flex-none w-full md:w-64">
+                        <input type="text" placeholder="搜索关联空间..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
+                        <i class="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                    </div>
+                    <button id="add-association-btn" class="px-4 py-2 bg-primary text-white rounded-lg flex items-center space-x-2 btn-hover shadow-md shadow-primary/20">
+                        <i class="bi bi-plus" aria-hidden="true"></i>
+                        <span>新建关联空间</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 内容卡片 -->
+            <div class="bg-white rounded-xl p-6 card-shadow animate-fade-in">
+                <!-- 表格区域 -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="bg-gray-50 text-left text-gray-700">
+                                <th class="py-3 px-4 font-medium text-sm">平台名称</th>
+                                <th class="py-3 px-4 font-medium text-sm">空间名称</th>
+                                <th class="py-3 px-4 font-medium text-sm">关联时间</th>
+                                <th class="py-3 px-4 font-medium text-sm">操作人</th>
+                                <th class="py-3 px-4 font-medium text-sm">关联功能</th>
+                                <th class="py-3 px-4 font-medium text-sm">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <!-- 示例数据1 -->
+                            <tr class="hover:bg-gray-50 transition-custom">
+                                <td class="py-3 px-4 text-sm">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        灯塔
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-sm">元宝</td>
+                                <td class="py-3 px-4 text-sm text-gray-600">2023-07-15 14:30:22</td>
+                                <td class="py-3 px-4 text-sm">张三</td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="bi bi-check-circle text-success text-xs" aria-hidden="true"></i>
+                                            <span class="text-xs">指标创建后同步</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <i class="bi bi-check-circle text-success text-xs" aria-hidden="true"></i>
+                                            <span class="text-xs">指标同步下游应用（全部指标）</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="flex space-x-2">
+                                        <button class="text-primary hover:text-primary/80 transition-custom" title="编辑">
+                                            <i class="bi bi-pen" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80 transition-custom" title="删除">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- 示例数据2 -->
+                            <tr class="hover:bg-gray-50 transition-custom">
+                                <td class="py-3 px-4 text-sm">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        TAB
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-sm">社交平台</td>
+                                <td class="py-3 px-4 text-sm text-gray-600">2023-07-10 09:15:36</td>
+                                <td class="py-3 px-4 text-sm">李四</td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="bi bi-check-circle text-success text-xs" aria-hidden="true"></i>
+                                            <span class="text-xs">指标创建后同步</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="flex space-x-2">
+                                        <button class="text-primary hover:text-primary/80 transition-custom" title="编辑">
+                                            <i class="bi bi-pen" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80 transition-custom" title="删除">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- 示例数据3 -->
+                            <tr class="hover:bg-gray-50 transition-custom">
+                                <td class="py-3 px-4 text-sm">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        TAB
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-sm">新闻平台</td>
+                                <td class="py-3 px-4 text-sm text-gray-600">2023-07-05 16:42:18</td>
+                                <td class="py-3 px-4 text-sm">王五</td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="bi bi-check-circle text-success text-xs" aria-hidden="true"></i>
+                                            <span class="text-xs">指标同步下游应用（指定业务域）</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="flex space-x-2">
+                                        <button class="text-primary hover:text-primary/80 transition-custom" title="编辑">
+                                            <i class="bi bi-pen" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80 transition-custom" title="删除">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- 示例数据4 -->
+                            <tr class="hover:bg-gray-50 transition-custom">
+                                <td class="py-3 px-4 text-sm">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        灯塔
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-sm">电商平台</td>
+                                <td class="py-3 px-4 text-sm text-gray-600">2023-06-28 11:20:45</td>
+                                <td class="py-3 px-4 text-sm">赵六</td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="bi bi-check-circle text-success text-xs" aria-hidden="true"></i>
+                                            <span class="text-xs">指标创建后同步</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <i class="bi bi-check-circle text-success text-xs" aria-hidden="true"></i>
+                                            <span class="text-xs">指标同步下游应用（指定业务域）</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="flex space-x-2">
+                                        <button class="text-primary hover:text-primary/80 transition-custom" title="编辑">
+                                            <i class="bi bi-pen" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80 transition-custom" title="删除">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- 示例数据5 -->
+                            <tr class="hover:bg-gray-50 transition-custom">
+                                <td class="py-3 px-4 text-sm">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        数据分析平台
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-sm">数据仓库</td>
+                                <td class="py-3 px-4 text-sm text-gray-600">2023-06-20 15:30:12</td>
+                                <td class="py-3 px-4 text-sm">孙七</td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="bi bi-check-circle text-success text-xs" aria-hidden="true"></i>
+                                            <span class="text-xs">指标同步下游应用（全部指标）</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="flex space-x-2">
+                                        <button class="text-primary hover:text-primary/80 transition-custom" title="编辑">
+                                            <i class="bi bi-pen" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80 transition-custom" title="删除">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- 示例数据6 -->
+                            <tr class="hover:bg-gray-50 transition-custom">
+                                <td class="py-3 px-4 text-sm">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        运营平台
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-sm">活动管理</td>
+                                <td class="py-3 px-4 text-sm text-gray-600">2023-06-15 10:15:30</td>
+                                <td class="py-3 px-4 text-sm">周八</td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="bi bi-check-circle text-success text-xs" aria-hidden="true"></i>
+                                            <span class="text-xs">指标创建后同步</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-sm">
+                                    <div class="flex space-x-2">
+                                        <button class="text-primary hover:text-primary/80 transition-custom" title="编辑">
+                                            <i class="bi bi-pen" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80 transition-custom" title="删除">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页区域 -->
+                <div class="flex justify-between items-center mt-6">
+                    <div class="text-sm text-gray-600">
+                        共 <span class="font-medium text-primary">6</span> 条数据
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-500 hover:border-primary hover:text-primary transition-custom disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <i class="bi bi-chevron-left text-xs" aria-hidden="true"></i>
+                        </button>
+                        <button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-white">1</button>
+                        <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:border-primary hover:text-primary transition-custom">2</button>
+                        <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:border-primary hover:text-primary transition-custom">3</button>
+                        <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-500 hover:border-primary hover:text-primary transition-custom">
+                            <i class="bi bi-chevron-right text-xs" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 新建关联空间模态框 -->
+    <div id="association-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-800">新建关联空间</h3>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 transition-custom">
+                    <i class="bi bi-x" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="px-6 py-6">
+                <form id="association-form">
+                    <!-- 平台名称 -->
+                    <div class="mb-6">
+                        <label for="platform-name" class="block text-sm font-medium text-gray-700 mb-1">平台名称 <span class="text-danger">*</span></label>
+                        <div class="relative">
+                            <select id="platform-name" class="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom appearance-none">
+                                <option value="">请选择平台</option>
+                                <option value="灯塔">灯塔</option>
+                                <option value="TAB">TAB</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <i class="bi bi-chevron-down text-xs" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 空间名称 -->
+                    <div class="mb-6">
+                        <label for="space-name" class="block text-sm font-medium text-gray-700 mb-1">空间名称 <span class="text-danger">*</span></label>
+                        <div class="relative">
+                            <select id="space-name" class="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom appearance-none">
+                                <option value="">请选择空间</option>
+                                <option value="元宝">元宝</option>
+                                <option value="社交平台">社交平台</option>
+                                <option value="新闻平台">新闻平台</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <i class="bi bi-chevron-down text-xs" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 关联功能 -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">关联功能</label>
+                        
+                        <!-- 指标创建后同步 -->
+                        <div class="flex items-start space-x-3 mb-4">
+                            <input type="checkbox" id="sync-after-create" class="mt-1 h-4 w-4 text-primary border-gray-300 rounded checkbox-custom focus:ring-primary">
+                            <div>
+                                <label for="sync-after-create" class="block text-sm font-medium text-gray-700">指标创建后同步</label>
+                                <p class="text-xs text-gray-500 mt-1">指标创建完成后自动同步到关联平台空间</p>
+                            </div>
+                        </div>
+
+                        <!-- 指标同步下游应用 -->
+                        <div class="flex items-start space-x-3 mb-4">
+                            <input type="checkbox" id="sync-to-downstream" class="mt-1 h-4 w-4 text-primary border-gray-300 rounded checkbox-custom focus:ring-primary">
+                            <div class="w-full">
+                                <label for="sync-to-downstream" class="block text-sm font-medium text-gray-700">指标同步下游应用</label>
+                                <p class="text-xs text-gray-500 mt-1">将指标同步到下游业务应用系统</p>
+                                
+                                <!-- 同步选项 -->
+                                <div id="sync-options" class="mt-3 ml-4 space-y-3 opacity-50 pointer-events-none">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="radio" name="sync-type" id="sync-all" class="h-4 w-4 text-primary border-gray-300 focus:ring-primary">
+                                        <label for="sync-all" class="text-sm text-gray-700">同步全部指标</label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input type="radio" name="sync-type" id="sync-specified" class="h-4 w-4 text-primary border-gray-300 focus:ring-primary">
+                                        <div class="flex items-center space-x-3">
+                                            <label for="sync-specified" class="text-sm text-gray-700">指定业务域</label>
+                                            <select id="business-domain" class="block pl-3 pr-10 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom appearance-none">
+                                                <option value="">请选择业务域</option>
+                                                <option value="运营">运营</option>
+                                                <option value="产品">产品</option>
+                                                <option value="研发">研发</option>
+                                                <option value="市场">市场</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-custom">
+                    取消
+                </button>
+                <button id="confirm-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-md shadow-primary/20">
+                    确认
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 代码 -->
+    <script>
+        // 切换顶部导航时显示对应的侧边菜单
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有顶部导航的active类
+                document.querySelectorAll('.nav-item').forEach(navItem => {
+                    navItem.classList.remove('active');
+                });
+                // 添加当前项的active类
+                this.classList.add('active');
+                
+                // 隐藏所有侧边内容
+                document.querySelectorAll('.side-nav-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // 显示对应的侧边内容
+                const section = this.getAttribute('data-section');
+                document.getElementById(section + '-content').style.display = 'block';
+            });
+        });
+        
+        // 模态框相关变量
+        const associationModal = document.getElementById('association-modal');
+        const addAssociationBtn = document.getElementById('add-association-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const confirmBtn = document.getElementById('confirm-btn');
+        const syncToDownstream = document.getElementById('sync-to-downstream');
+        const syncOptions = document.getElementById('sync-options');
+
+        // 打开模态框
+        addAssociationBtn.addEventListener('click', function() {
+            associationModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // 关闭模态框
+        function closeModal() {
+            associationModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        // 点击模态框外部关闭
+        associationModal.addEventListener('click', function(e) {
+            if (e.target === associationModal) {
+                closeModal();
+            }
+        });
+
+        // 指标同步下游应用选项切换
+        syncToDownstream.addEventListener('change', function() {
+            if (this.checked) {
+                syncOptions.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                syncOptions.classList.add('opacity-50', 'pointer-events-none');
+            }
+        });
+
+        // 确认按钮点击事件
+        confirmBtn.addEventListener('click', function() {
+            // 表单验证
+            const platformName = document.getElementById('platform-name').value;
+            const spaceName = document.getElementById('space-name').value;
+            
+            if (!platformName) {
+                alert('请选择平台名称');
+                return;
+            }
+            
+            if (!spaceName) {
+                alert('请选择空间名称');
+                return;
+            }
+            
+            // 在实际应用中，这里会提交表单数据到服务器
+            alert('关联空间创建成功！');
+            closeModal();
+            
+            // 可以在这里添加页面刷新或更新列表的逻辑
+        });
+
+        // 编辑和删除按钮的事件监听
+        document.querySelectorAll('button[title="编辑"]').forEach(button => {
+            button.addEventListener('click', function() {
+                // 打开模态框并填充数据
+                associationModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                // 这里应该根据被编辑的行填充表单数据
+            });
+        });
+
+        document.querySelectorAll('button[title="删除"]').forEach(button => {
+            button.addEventListener('click', function() {
+                if (confirm('确定要删除此关联关系吗？')) {
+                    // 在实际应用中，这里会发送删除请求到服务器
+                    alert('关联关系已删除！');
+                    // 可以在这里添加页面刷新或更新列表的逻辑
+                }
+            });
+        });
+
+        // 为分页按钮添加交互效果
+        document.querySelectorAll('.flex.justify-between.items-center button:not(:disabled)').forEach(button => {
+            button.addEventListener('click', function() {
+                // 在实际应用中，这里会处理分页逻辑
+                // 简单的视觉反馈
+                this.classList.add('bg-primary', 'text-white');
+                setTimeout(() => {
+                    this.classList.remove('bg-primary', 'text-white');
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>

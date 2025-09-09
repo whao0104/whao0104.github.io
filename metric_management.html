@@ -656,6 +656,15 @@
             const metrics = [];
             let baseId = 70933; // 从70933开始，避免与现有数据冲突
 
+            // 生成过去30天内的随机日期
+            function generateRandomDate() {
+                const today = new Date();
+                const daysAgo = Math.floor(Math.random() * 30);
+                const randomDate = new Date(today);
+                randomDate.setDate(today.getDate() - daysAgo);
+                return randomDate.toISOString().split('T')[0];
+            }
+
             for (let i = 0; i < count; i++) {
                 const id = baseId + i;
                 const name = metricNames[i % metricNames.length] + (Math.random() > 0.5 ? '(' + Math.floor(Math.random() * 1000) + ')' : '');
@@ -664,9 +673,10 @@
                 const isCertified = Math.random() > 0.3;
                 const businessDefinition = name + ' = ' + Math.random().toString(36).substring(2, 10) + ' / ' + Math.random().toString(36).substring(2, 10);
                 const applicationType = applicationTypes[Math.floor(Math.random() * applicationTypes.length)];
-                const usage = Math.floor(Math.random() * 1000) + 10;
+                const usageHeat = Math.floor(Math.random() * 1000) + 10;
                 const dimension = dimensions[Math.floor(Math.random() * dimensions.length)];
                 const owner = owners[Math.floor(Math.random() * owners.length)];
+                const createTime = generateRandomDate();
 
                 // 随机生成1-3个标签
                 const tagCount = Math.floor(Math.random() * 3) + 1;
@@ -680,8 +690,8 @@
 
                 metrics.push({
                     id, name, businessDomain, themeDomain, isCertified,
-                    businessDefinition, applicationType, usage, dimension,
-                    owner, tags: metricTags
+                    businessDefinition, applicationType, usageHeat, dimension,
+                    owner, tags: metricTags, createTime
                 });
             }
 
@@ -691,31 +701,12 @@
         // 绑定详情按钮事件
         function bindDetailButtons() {
             const viewDetailBtns = document.querySelectorAll('.btn.view-details');
-            const detailCard = document.getElementById('metric-detail-card');
-            const closeDetailBtn = document.getElementById('close-detail-card');
-            const overlay = document.querySelector('.overlay');
 
             viewDetailBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
                     const metricId = this.getAttribute('data-metric-id');
-                    const metricRow = document.querySelector(`.metric-row[data-metric-id='${metricId}']`);
-
-                    if (metricRow) {
-                        // 更新详情卡片内容
-                        document.getElementById('detail-metric-name').textContent = metricRow.cells[1].textContent + 
-                            (metricRow.cells[4].classList.contains('certified') ? ' (已认证)' : ' (非认证)');
-                        document.getElementById('detail-business-definition').textContent = metricRow.cells[5].textContent;
-
-                        // 模拟技术逻辑和计算周期
-                        const techLogic = ['sum(revenue)/count(device)', 'ods.order_count', 'dws.user_active', 'dwd.content_click', 'sum(play_time)/count(user)'][Math.floor(Math.random() * 5)];
-                        const calcCycle = ['T+1', 'T+0', '日', '周', '月'][Math.floor(Math.random() * 5)];
-
-                        document.getElementById('detail-technical-logic').textContent = techLogic;
-                        document.getElementById('detail-calculation-cycle').textContent = calcCycle;
-                    }
-
-                    detailCard.style.display = 'block';
-                    overlay.style.display = 'block';
+                    // 跳转到新的指标管理详情页面，并传递指标ID
+                    window.location.href = `metric_detail_management.html?metricId=${metricId}`;
                 });
             });
         }
@@ -742,21 +733,73 @@
                 });
 
                 row.innerHTML = `
-                    <td>${metric.id}</td>
-                    <td>${metric.name}</td>
-                    <td>${metric.businessDomain}</td>
-                    <td>${metric.themeDomain}</td>
-                    <td class="certification-status ${certificationClass}">${certificationStatus}</td>
-                    <td>${metric.businessDefinition}</td>
-                    <td>${metric.applicationType}</td>
-                    <td>${metric.usage}</td>
-                    <td>${metric.dimension}</td>
-                    <td>${metric.owner}</td>
-                    <td>${tagsHTML}</td>
-                    <td>
-                        <button class="btn view-details" data-metric-id="${metric.id}">详情</button>
-                        <button class="btn change-record">变更记录</button>
-                        <button class="btn apply-permission">申请权限</button>
+                    <td style="white-space: nowrap; position: sticky; left: 0; background-color: #FFFFFF; z-index: 1;">${metric.id}</td>
+                    <td style="white-space: nowrap; position: sticky; left: 60px; background-color: #FFFFFF; z-index: 1;">${metric.name}</td>
+                    <td style="white-space: nowrap;">${metric.businessDomain}</td>
+                    <td style="white-space: nowrap;">${metric.themeDomain}</td>
+                    <td style="white-space: nowrap;" class="certification-status ${certificationClass}">${certificationStatus}</td>
+                    <td style="white-space: nowrap;">${metric.businessDefinition}</td>
+                    <td style="white-space: nowrap;">${metric.createTime}</td>
+                    <td style="white-space: nowrap;">${metric.applicationType}</td>
+                    <td style="white-space: nowrap;">${metric.usageHeat}</td>
+                    <td style="white-space: nowrap;">${metric.owner}</td>
+                    <td style="white-space: nowrap;">${tagsHTML}</td>
+                    <td style="white-space: nowrap;">${metric.dimension}</td>
+                    <td style="white-space: nowrap; position: sticky; right: 0; background-color: #FFFFFF; z-index: 1;">
+                        <button class="btn view-details" data-metric-id="${metric.id}" style="
+                            padding: 6px 12px;
+                            margin-right: 8px;
+                            border: 1px solid #D9D9D9;
+                            border-radius: 6px;
+                            background-color: #FFFFFF;
+                            color: #1D2129;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">详情</button>
+                        <button class="btn change-record" style="
+                            padding: 6px 12px;
+                            margin-right: 8px;
+                            border: 1px solid #D9D9D9;
+                            border-radius: 6px;
+                            background-color: #FFFFFF;
+                            color: #1D2129;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">变更记录</button>
+                        <button class="btn hide-metric" style="
+                            padding: 6px 12px;
+                            margin-right: 8px;
+                            border: 1px solid #D9D9D9;
+                            border-radius: 6px;
+                            background-color: #FFFFFF;
+                            color: #1D2129;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">隐藏</button>
+                        <button class="btn offline-metric" style="
+                            padding: 6px 12px;
+                            margin-right: 8px;
+                            border: 1px solid #D9D9D9;
+                            border-radius: 6px;
+                            background-color: #FFFFFF;
+                            color: #1D2129;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">下线</button>
+                        <button class="btn notify" style="
+                            padding: 6px 12px;
+                            border: 1px solid #D9D9D9;
+                            border-radius: 6px;
+                            background-color: #FFFFFF;
+                            color: #1D2129;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">通知</button>
                     </td>
                 `;
 
@@ -792,25 +835,9 @@
                 overlay.style.display = 'none';
             });
 
-            // 悬浮创建按钮功能
-            const fabMain = document.querySelector('.fab-main');
-            const fabOptions = document.querySelector('.fab-options');
-
-            fabMain.addEventListener('click', function() {
-                fabOptions.style.display = fabOptions.style.display === 'flex' ? 'none' : 'flex';
-            });
-
-            // 点击页面其他地方关闭悬浮选项
-            document.addEventListener('click', function(event) {
-                if (!fabMain.contains(event.target) && !fabOptions.contains(event.target)) {
-                    fabOptions.style.display = 'none';
-                }
-            });
-
             // 筛选功能模拟
             const searchInput = document.getElementById('metric-search');
             const searchBtn = document.querySelector('.search-btn');
-            const myMetricsBtn = document.getElementById('my-metrics-btn');
             const filterSidebar = document.querySelector('.filter-sidebar');
             const resetFilterBtn = filterSidebar.querySelector('.reset-btn');
             const applyFilterBtn = filterSidebar.querySelector('.apply-btn');
@@ -823,7 +850,8 @@
                 certificationStatus: [],
                 otherFilters: [],
                 tags: [],
-                myMetrics: false
+                myMetrics: false,
+                recentlyAdded: false
             };
 
             function updateCurrentFilters() {
@@ -832,37 +860,44 @@
 
                 // 更新业务域筛选
                 currentFilters.businessDomains = Array.from(
-                    filterSidebar.querySelectorAll('.filter-group:nth-child(1) .filter-checkbox:checked')
+                    filterSidebar.querySelectorAll('.business-domain-checkbox:checked')
                 ).map(checkbox => checkbox.value);
 
                 // 更新主题域筛选
                 currentFilters.themeDomains = Array.from(
-                    filterSidebar.querySelectorAll('.filter-group:nth-child(2) .filter-checkbox:checked')
+                    filterSidebar.querySelectorAll('.theme-domain-checkbox:checked')
                 ).map(checkbox => checkbox.value);
 
                 // 更新标签筛选
                 currentFilters.tags = Array.from(
-                    filterSidebar.querySelectorAll('.filter-group:nth-child(3) .filter-checkbox:checked')
+                    filterSidebar.querySelectorAll('.filter-group:nth-child(2) .filter-checkbox:checked')
                 ).map(checkbox => checkbox.value);
 
                 // 更新认证状态筛选
                 currentFilters.certificationStatus = Array.from(
-                    filterSidebar.querySelectorAll('.filter-group:nth-child(4) .filter-checkbox:checked')
+                    filterSidebar.querySelectorAll('.filter-group:nth-child(3) .filter-checkbox:checked')
                 ).map(checkbox => checkbox.value);
 
                 // 更新其他筛选
                 currentFilters.otherFilters = Array.from(
-                    filterSidebar.querySelectorAll('.filter-group:nth-child(5) .filter-checkbox:checked')
+                    filterSidebar.querySelectorAll('.filter-group:nth-child(4) .filter-checkbox:checked')
                 ).map(checkbox => checkbox.value);
 
                 // 更新"我管理的"筛选
-                currentFilters.myMetrics = myMetricsBtn.classList.contains('active');
+                currentFilters.myMetrics = document.getElementById('my-metrics-checkbox').checked;
+                
+                // 更新"近期新增"筛选
+                currentFilters.recentlyAdded = document.getElementById('recently-added-checkbox').checked;
             }
 
             function filterMetrics() {
                 updateCurrentFilters();
                 const metricRows = document.querySelectorAll('.metric-row');
 
+                // 获取7天前的日期
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                
                 metricRows.forEach(row => {
                     const metricId = row.getAttribute('data-metric-id');
                     const metricName = row.cells[1].textContent.toLowerCase();
@@ -871,6 +906,7 @@
                     const certificationStatus = row.cells[4].classList.contains('certified') ? 'certified' : 'not-certified';
                     const owner = row.cells[9].textContent.toLowerCase();
                     const tags = Array.from(row.cells[10].querySelectorAll('.tag')).map(tag => tag.textContent.toLowerCase());
+                    const createTime = row.cells[6].textContent; // 第7列是创建时间
 
                     // 搜索词筛选
                     const matchesSearch = currentFilters.searchTerm === '' || 
@@ -901,11 +937,15 @@
 
                     // "我管理的"筛选
                     const matchesMyMetrics = !currentFilters.myMetrics || owner === 'skyhwang';
+                    
+                    // "近期新增"筛选
+                    const matchesRecentlyAdded = !currentFilters.recentlyAdded || 
+                                                new Date(createTime) >= sevenDaysAgo;
 
                     // 如果所有筛选条件都满足，则显示行
                     row.style.display = (matchesSearch && matchesBusinessDomain && 
                                          matchesThemeDomain && matchesCertification && matchesTags && 
-                                         matchesOtherFilters && matchesMyMetrics) ? '' : 'none';
+                                         matchesOtherFilters && matchesMyMetrics && matchesRecentlyAdded) ? '' : 'none';
                 });
             }
 
@@ -917,16 +957,92 @@
                 }
             });
 
-            // 绑定"我管理的"按钮事件
-            myMetricsBtn.addEventListener('click', function() {
-                this.classList.toggle('active');
-                filterMetrics();
-            });
+            // 绑定"我管理的"复选框事件
+            document.getElementById('my-metrics-checkbox').addEventListener('change', filterMetrics);
+            
+            // 绑定"近期新增"复选框事件
+            document.getElementById('recently-added-checkbox').addEventListener('change', filterMetrics);
+
+            // 业务域和主题域的关联关系
+            const domainRelations = {
+                'mobile': ['revenue', 'user'],  // 移动端包含收入、用户
+                'pc': ['activity', 'conversion'], // PC端包含活跃度、转化
+                'ott': ['content']  // OTT端包含内容
+            };
+
+            // 主题域对应的业务域
+            const themeToBusiness = {
+                'revenue': 'mobile',
+                'user': 'mobile',
+                'activity': 'pc',
+                'conversion': 'pc',
+                'content': 'ott'
+            };
+
+            // 级联筛选逻辑
+            function handleCascadeFiltering(checkbox) {
+                // 如果是业务域复选框
+                if (Object.keys(domainRelations).includes(checkbox.value)) {
+                    const treeNode = checkbox.closest('.tree-node');
+                    const themeCheckboxes = treeNode.querySelectorAll('.theme-domain-checkbox');
+                    
+                    if (checkbox.checked) {
+                        // 选中业务域时，选中所有相关的主题域
+                        themeCheckboxes.forEach(themeCb => {
+                            themeCb.checked = true;
+                        });
+                    } else {
+                        // 取消选中业务域时，取消选中所有相关的主题域
+                        themeCheckboxes.forEach(themeCb => {
+                            themeCb.checked = false;
+                        });
+                    }
+                }
+                // 如果是主题域复选框
+                else if (Object.keys(themeToBusiness).includes(checkbox.value)) {
+                    const businessDomain = themeToBusiness[checkbox.value];
+                    const businessCheckbox = document.querySelector(`.business-domain-checkbox[value="${businessDomain}"]`);
+                    const treeNode = businessCheckbox.closest('.tree-node');
+                    const themeCheckboxes = treeNode.querySelectorAll('.theme-domain-checkbox');
+                    
+                    // 检查是否所有相关主题域都未被选中
+                    const allUnchecked = Array.from(themeCheckboxes).every(themeCb => !themeCb.checked);
+                    
+                    // 如果所有相关主题域都未被选中，则取消选中对应的业务域
+                    if (allUnchecked) {
+                        businessCheckbox.checked = false;
+                    } else {
+                        // 如果有任何主题域被选中，则选中对应的业务域
+                        businessCheckbox.checked = true;
+                    }
+                }
+            }
+
+            // 树节点展开/折叠功能
+            function setupTreeNodes() {
+                const treeNodes = document.querySelectorAll('.tree-node');
+                
+                treeNodes.forEach(node => {
+                    const parentOption = node.querySelector('.parent-option');
+                    
+                    parentOption.addEventListener('click', function(e) {
+                        // 只有点击标签文字时才展开/折叠，点击复选框时不触发
+                        if (e.target.tagName !== 'INPUT') {
+                            node.classList.toggle('collapsed');
+                        }
+                    });
+                });
+            }
+
+            // 初始化树节点
+            setupTreeNodes();
 
             // 绑定左侧筛选事件
             const checkboxes = document.querySelectorAll('.filter-checkbox');
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
+                    // 处理级联筛选
+                    handleCascadeFiltering(this);
                     // 不需要立即筛选，等待用户点击应用按钮
                 });
             });
@@ -937,8 +1053,9 @@
                 document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
                     checkbox.checked = false;
                 });
-                // 重置"我管理的"按钮
-                myMetricsBtn.classList.remove('active');
+                // 重置顶部的复选框
+                document.getElementById('my-metrics-checkbox').checked = false;
+                document.getElementById('recently-added-checkbox').checked = false;
                 // 重置搜索输入
                 searchInput.value = '';
                 // 应用筛选
@@ -959,6 +1076,149 @@
                     this.classList.add('active');
                 });
             });
+
+            // 操作按钮事件监听器
+            // 隐藏按钮 - 点击后隐藏对应的指标行
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('hide-metric')) {
+                    const metricId = e.target.getAttribute('data-metric-id');
+                    const metricRow = document.querySelector(`.metric-row[data-metric-id="${metricId}"]`);
+                    if (metricRow) {
+                        metricRow.style.display = 'none';
+                        // 显示操作成功提示
+                        showToast('指标已隐藏');
+                    }
+                }
+            });
+
+            // 下线按钮 - 点击后将指标标记为下线状态
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('offline-metric')) {
+                    const metricId = e.target.getAttribute('data-metric-id');
+                    const metricRow = document.querySelector(`.metric-row[data-metric-id="${metricId}"]`);
+                    if (metricRow) {
+                        // 改变行的样式以表示下线状态
+                        metricRow.style.opacity = '0.6';
+                        metricRow.style.backgroundColor = '#F5F5F5';
+                        
+                        // 可以添加下线标记
+                        const statusCell = metricRow.querySelector('.certification-status');
+                        if (statusCell) {
+                            statusCell.innerHTML = '已下线 🔴';
+                            statusCell.className = 'certification-status offline';
+                            statusCell.style.color = '#F5222D';
+                        }
+                        
+                        // 显示操作成功提示
+                        showToast('指标已下线');
+                    }
+                }
+            });
+
+            // 通知按钮 - 点击后显示通知功能
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('notify')) {
+                    const metricId = e.target.getAttribute('data-metric-id');
+                    showToast('通知功能将在下一版本实现');
+                    // 这里可以添加实际的通知逻辑
+                }
+            });
+
+            // 简单的提示框功能
+            function showToast(message) {
+                // 检查是否已存在toast元素
+                let toast = document.querySelector('.toast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        padding: 12px 20px;
+                        background-color: #1D2129;
+                        color: #FFFFFF;
+                        border-radius: 6px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                        z-index: 9999;
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                    `;
+                    document.body.appendChild(toast);
+                }
+                
+                toast.textContent = message;
+                toast.style.opacity = '1';
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                }, 2000);
+            }
+
+            // 为表格中的所有按钮添加data-metric-id属性
+            document.querySelectorAll('.metric-row').forEach(row => {
+                const metricId = row.getAttribute('data-metric-id');
+                const buttons = row.querySelectorAll('.btn');
+                buttons.forEach(button => {
+                    if (!button.getAttribute('data-metric-id')) {
+                        button.setAttribute('data-metric-id', metricId);
+                    }
+                });
+            });
+            
+            // 新建指标按钮点击事件处理
+            if (document.getElementById('create-metric-btn')) {
+                // 获取弹窗元素
+                const confirmModal = document.getElementById('create-metric-confirm-modal');
+                const modalCancelBtn = document.getElementById('modal-cancel-btn');
+                const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+                
+                // 显示弹窗的函数
+                function showConfirmModal() {
+                    confirmModal.style.display = 'flex';
+                    // 防止背景滚动
+                    document.body.style.overflow = 'hidden';
+                }
+                
+                // 隐藏弹窗的函数
+                function hideConfirmModal() {
+                    confirmModal.style.display = 'none';
+                    // 恢复背景滚动
+                    document.body.style.overflow = '';
+                }
+                
+                // 新建指标按钮点击事件
+                document.getElementById('create-metric-btn').addEventListener('click', showConfirmModal);
+                
+                // 取消按钮点击事件
+                modalCancelBtn.addEventListener('click', function() {
+                    hideConfirmModal();
+                    showToast('已取消新建指标操作');
+                });
+                
+                // 确认按钮点击事件
+                modalConfirmBtn.addEventListener('click', function() {
+                    hideConfirmModal();
+                    showToast('即将跳转至灯塔矩阵建模页面');
+                    
+                    // 在实际项目中，这里可以实现跳转到灯塔矩阵建模页面的逻辑
+                    // 例如：window.location.href = 'lighthouse_modeling.html';
+                });
+                
+                // 点击弹窗外部区域关闭弹窗
+                confirmModal.addEventListener('click', function(event) {
+                    if (event.target === confirmModal) {
+                        hideConfirmModal();
+                    }
+                });
+                
+                // 按ESC键关闭弹窗
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape' && confirmModal.style.display === 'flex') {
+                        hideConfirmModal();
+                    }
+                });
+            }
         });
     </script>
 
@@ -975,27 +1235,41 @@
 
                 <div class="filter-group">
                     <div class="filter-group-title">
-                        <span>业务域</span>
+                        <span>指标分类</span>
                         <span class="toggle-icon">▼</span>
                     </div>
-                    <div class="filter-options">
-                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="mobile"> 移动端</label>
-                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="pc"> PC端</label>
-                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="ott"> OTT端</label>
-                    </div>
-                </div>
-
-                <div class="filter-group">
-                    <div class="filter-group-title">
-                        <span>主题域</span>
-                        <span class="toggle-icon">▼</span>
-                    </div>
-                    <div class="filter-options">
-                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="revenue"> 收入</label>
-                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="user"> 用户</label>
-                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="activity"> 活跃度</label>
-                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="content"> 内容</label>
-                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="conversion"> 转化</label>
+                    <div class="filter-options tree-structure">
+                        <!-- 移动端 -->
+                        <div class="tree-node">
+                            <label class="filter-option parent-option">
+                                <input type="checkbox" class="filter-checkbox business-domain-checkbox" value="mobile"> 移动端
+                            </label>
+                            <div class="tree-children">
+                                <label class="filter-option child-option"><input type="checkbox" class="filter-checkbox theme-domain-checkbox" value="revenue"> 收入</label>
+                                <label class="filter-option child-option"><input type="checkbox" class="filter-checkbox theme-domain-checkbox" value="user"> 用户</label>
+                            </div>
+                        </div>
+                        
+                        <!-- PC端 -->
+                        <div class="tree-node">
+                            <label class="filter-option parent-option">
+                                <input type="checkbox" class="filter-checkbox business-domain-checkbox" value="pc"> PC端
+                            </label>
+                            <div class="tree-children">
+                                <label class="filter-option child-option"><input type="checkbox" class="filter-checkbox theme-domain-checkbox" value="activity"> 活跃度</label>
+                                <label class="filter-option child-option"><input type="checkbox" class="filter-checkbox theme-domain-checkbox" value="conversion"> 转化</label>
+                            </div>
+                        </div>
+                        
+                        <!-- OTT端 -->
+                        <div class="tree-node">
+                            <label class="filter-option parent-option">
+                                <input type="checkbox" class="filter-checkbox business-domain-checkbox" value="ott"> OTT端
+                            </label>
+                            <div class="tree-children">
+                                <label class="filter-option child-option"><input type="checkbox" class="filter-checkbox theme-domain-checkbox" value="content"> 内容</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1032,7 +1306,6 @@
                         <span class="toggle-icon">▼</span>
                     </div>
                     <div class="filter-options">
-                        <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="my-metrics"> 我的指标</label>
                         <label class="filter-option"><input type="checkbox" class="filter-checkbox" value="frequent-metrics"> 高频使用指标</label>
                     </div>
                 </div>
@@ -1044,83 +1317,586 @@
             <!-- 中间和右侧内容区 -->
             <div class="content-area">
                 <!-- 顶部搜索栏 -->
-                <div class="top-search-bar">
-                    <div class="search-box">
-                        <input type="text" placeholder="搜索指标ID/指标名称..." id="metric-search" class="search-input">
-                        <button class="search-btn"><i class="icon-search"></i></button>
-                        <button class="filter-btn" id="my-metrics-btn">我管理的</button>
+                <div class="top-search-bar" style="
+                    background-color: white;
+                    border-radius: 12px;
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+                    padding: 16px 24px;
+                    margin-bottom: 24px;
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                ">
+                    <div class="search-box" style="
+                        display: flex;
+                        align-items: center;
+                        gap: 16px;
+                        flex-wrap: wrap;
+                    ">
+                        <div style="position: relative; flex: 1; min-width: 200px;">
+                            <input 
+                                type="text" 
+                                placeholder="搜索指标ID/指标名称..." 
+                                id="metric-search" 
+                                class="search-input" 
+                                style="
+                                    width: 100%;
+                                    padding: 12px 40px 12px 16px;
+                                    border: 1px solid #DCDFE6;
+                                    border-radius: 6px;
+                                    font-size: 14px;
+                                    box-sizing: border-box;
+                                    transition: border-color 0.2s ease;
+                                "
+                            >
+                            <button 
+                                class="search-btn" 
+                                style="
+                                    position: absolute;
+                                    right: 12px;
+                                    top: 50%;
+                                    transform: translateY(-50%);
+                                    background: none;
+                                    border: none;
+                                    color: #165DFF;
+                                    cursor: pointer;
+                                    padding: 6px;
+                                    border-radius: 4px;
+                                    transition: background-color 0.2s ease;
+                                "
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <label class="filter-checkbox-label" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            cursor: pointer;
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            transition: background-color 0.2s ease;
+                        ">
+                            <input 
+                                type="checkbox" 
+                                id="my-metrics-checkbox" 
+                                class="my-metrics-checkbox" 
+                                style="
+                                    accent-color: #165DFF;
+                                    width: 16px;
+                                    height: 16px;
+                                "
+                            >
+                            <span style="
+                                font-size: 14px;
+                                font-weight: 500;
+                                color: #1D2129;
+                            ">我管理的</span>
+                        </label>
+                        
+                        <label class="filter-checkbox-label" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            cursor: pointer;
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            transition: background-color 0.2s ease;
+                        ">
+                            <input 
+                                type="checkbox" 
+                                id="recently-added-checkbox" 
+                                class="recently-added-checkbox" 
+                                style="
+                                    accent-color: #165DFF;
+                                    width: 16px;
+                                    height: 16px;
+                                "
+                            >
+                            <span style="
+                                font-size: 14px;
+                                font-weight: 500;
+                                color: #1D2129;
+                            ">近期新增</span>
+                        </label>
+                        
+                        <!-- 新建指标按钮 -->
+                        <button 
+                            id="create-metric-btn" 
+                            class="create-metric-btn" 
+                            style="
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                                background-color: #165DFF;
+                                color: white;
+                                border: none;
+                                border-radius: 6px;
+                                padding: 10px 20px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                                white-space: nowrap;
+                            "
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            新建指标
+                        </button>
                     </div>
 
-                    <div class="advanced-filters">
-                        <!-- 删除创建人和标签筛选 -->
-                    </div>
+                    <style>
+                        .top-search-bar:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                        }
+                        
+                        .search-input:focus {
+                            outline: none;
+                            border-color: #165DFF;
+                            box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.1);
+                        }
+                        
+                        .search-btn:hover {
+                            background-color: rgba(22, 93, 255, 0.1);
+                        }
+                        
+                        .filter-checkbox-label:hover {
+                            background-color: #F5F7FA;
+                        }
+
+                        /* 表格样式 */
+                        .metrics-table-container:hover {
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+                            transform: translateY(-2px);
+                        }
+
+                        .metric-row:hover {
+                            background-color: #F5F7FA;
+                            z-index: 3;
+                            position: relative;
+                        }
+
+                        /* 按钮样式 */
+                        .btn {
+                            transition: all 0.2s ease;
+                        }
+
+                        .btn:hover {
+                            border-color: #165DFF;
+                            color: #165DFF;
+                            transform: translateY(-1px);
+                            box-shadow: 0 2px 8px rgba(22, 93, 255, 0.1);
+                        }
+
+                        .btn:active {
+                            transform: translateY(0);
+                        }
+
+                        /* 分页按钮样式 */
+                        .page-btn:hover:not(:disabled) {
+                            border-color: #165DFF;
+                            color: #165DFF;
+                            transform: translateY(-1px);
+                            box-shadow: 0 2px 8px rgba(22, 93, 255, 0.1);
+                        }
+
+                        .page-btn:active:not(:disabled) {
+                            transform: translateY(0);
+                        }
+
+                        /* 认证状态样式 */
+                        .certification-status.certified {
+                            color: #165DFF;
+                            font-weight: 500;
+                        }
+
+                        .certification-status.not-certified {
+                            color: #F7BA1E;
+                        }
+
+                        /* 标签样式 */
+                        .tag {
+                            display: inline-block;
+                            padding: 2px 8px;
+                            margin-right: 6px;
+                            background-color: #F0F2F5;
+                            color: #4E5969;
+                            font-size: 12px;
+                            border-radius: 4px;
+                        }
+
+                        /* 添加平滑的过渡动画 */
+                        .search-input,
+                        .search-btn,
+                        .filter-checkbox-label,
+                        .metrics-table-container,
+                        .metric-row {
+                            transition: all 0.2s ease;
+                        }
+                    </style>
 
                     <!-- 主体列表区 -->
-                    <div class="metrics-table-container card">
-                        <table class="metrics-table">
-                            <thead>
+                    <div class="metrics-table-container card" style="
+                        margin-top: 16px;
+                        background-color: #FFFFFF;
+                        border-radius: 12px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                        transition: all 0.2s ease;
+                        overflow: hidden;
+                    ">
+                        <div class="metrics-table-wrapper" style="
+                            overflow-x: auto;
+                            width: 100%;
+                        ">
+                            <table class="metrics-table" style="
+                                width: 100%;
+                                border-collapse: collapse;
+                                min-width: 1200px;
+                            ">
+                            <thead style="
+                                background-color: #F5F7FA;
+                                border-bottom: 1px solid #E5E6EB;
+                            ">
                                 <tr>
-                                    <th>指标ID</th>
-                                    <th>指标名称</th>
-                                    <th>业务域</th>
-                                    <th>主题域</th>
-                                    <th>认证状态</th>
-                                    <th>指标业务口径</th>
-                                    <th>应用类型</th>
-                                    <th>使用量</th>
-                                    <th>指标维度</th>
-                                    <th>负责人</th>
-                                    <th>标签</th>
-                                    <th>操作</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                        position: sticky;
+                                        left: 0;
+                                        background-color: #F5F7FA;
+                                        z-index: 2;
+                                    ">指标ID</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                        position: sticky;
+                                        left: 60px;
+                                        background-color: #F5F7FA;
+                                        z-index: 2;
+                                    ">指标名称</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                    ">业务域</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                    ">主题域</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                    ">认证状态</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                    ">业务口径</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                    ">创建时间</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                    ">应用类型</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                    ">使用热度</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                    ">负责人</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                    ">指标标签</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        border-right: 1px solid #E5E6EB;
+                                        white-space: nowrap;
+                                    ">关联维度</th>
+                                    <th style="
+                                        padding: 12px 16px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        font-size: 14px;
+                                        color: #1D2129;
+                                        white-space: nowrap;
+                                        position: sticky;
+                                        right: 0;
+                                        background-color: #F5F7FA;
+                                        z-index: 2;
+                                    ">操作</th>
                                 </tr>
                             </thead>
                             <tbody id="metrics-table-body">
                                 <tr class="metric-row" data-metric-id="70931">
-                                    <td>70931</td>
-                                    <td>人均会员品类站内+站外总收入(QIMEI36-VUID)</td>
-                                    <td>移动端</td>
-                                    <td>收入</td>
-                                    <td class="certification-status certified">已认证 ⭐</td>
-                                    <td>人均会员品类站内+站外总收入(QIMEI36-VUID) = 会员品类站内+站外总收入(QIMEI36-VUID) / 实验虚拟活跃设备数</td>
-                                    <td>灯塔、TAB</td>
-                                    <td>100</td>
-                                    <td>用户活跃度、国家</td>
-                                    <td>skyhwang</td>
-                                    <td><span class="tag">会员</span></td>
-                                    <td>
-                                        <button class="btn view-details" data-metric-id="70931">详情</button>
-                                        <button class="btn change-record">变更记录</button>
-                                        <button class="btn apply-permission">申请权限</button>
+                                    <td style="white-space: nowrap; position: sticky; left: 0; background-color: #FFFFFF; z-index: 1;">70931</td>
+                                    <td style="white-space: nowrap; position: sticky; left: 60px; background-color: #FFFFFF; z-index: 1;">人均会员品类站内+站外总收入(QIMEI36-VUID)</td>
+                                    <td style="white-space: nowrap;">移动端</td>
+                                    <td style="white-space: nowrap;">收入</td>
+                                    <td style="white-space: nowrap;" class="certification-status certified">已认证 ⭐</td>
+                                    <td style="white-space: nowrap;">人均会员品类站内+站外总收入(QIMEI36-VUID) = 会员品类站内+站外总收入(QIMEI36-VUID) / 实验虚拟活跃设备数</td>
+                                    <td style="white-space: nowrap;">2023-08-11</td>
+                                    <td style="white-space: nowrap;">灯塔、TAB</td>
+                                    <td style="white-space: nowrap;">100</td>
+                                    <td style="white-space: nowrap;">skyhwang</td>
+                                    <td style="white-space: nowrap;"><span class="tag">会员</span></td>
+                                    <td style="white-space: nowrap;">用户活跃度、国家</td>
+                                    <td style="white-space: nowrap; position: sticky; right: 0; background-color: #FFFFFF; z-index: 1;">
+                                        <button class="btn view-details" data-metric-id="70931" style="
+                                            padding: 6px 12px;
+                                            margin-right: 8px;
+                                            border: 1px solid #D9D9D9;
+                                            border-radius: 6px;
+                                            background-color: #FFFFFF;
+                                            color: #1D2129;
+                                            font-size: 14px;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        ">详情</button>
+                                        <button class="btn change-record" style="
+                                            padding: 6px 12px;
+                                            margin-right: 8px;
+                                            border: 1px solid #D9D9D9;
+                                            border-radius: 6px;
+                                            background-color: #FFFFFF;
+                                            color: #1D2129;
+                                            font-size: 14px;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        ">变更记录</button>
+                                        <button class="btn hide-metric" style="
+                                            padding: 6px 12px;
+                                            margin-right: 8px;
+                                            border: 1px solid #D9D9D9;
+                                            border-radius: 6px;
+                                            background-color: #FFFFFF;
+                                            color: #1D2129;
+                                            font-size: 14px;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        ">隐藏</button>
+                                        <button class="btn offline-metric" style="
+                                            padding: 6px 12px;
+                                            margin-right: 8px;
+                                            border: 1px solid #D9D9D9;
+                                            border-radius: 6px;
+                                            background-color: #FFFFFF;
+                                            color: #1D2129;
+                                            font-size: 14px;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        ">下线</button>
+                                        <button class="btn notify" style="
+                                            padding: 6px 12px;
+                                            border: 1px solid #D9D9D9;
+                                            border-radius: 6px;
+                                            background-color: #FFFFFF;
+                                            color: #1D2129;
+                                            font-size: 14px;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        ">通知</button>
                                     </td>
                                 </tr>
                                 <tr class="metric-row" data-metric-id="70932">
-                                    <td>70932</td>
-                                    <td>转化率_新客</td>
-                                    <td>PC端</td>
-                                    <td>用户</td>
-                                    <td class="certification-status not-certified">非认证 🟡</td>
-                                    <td>转化率_新客 = 新客首日订单 / UV</td>
-                                    <td>数据分析</td>
-                                    <td>50</td>
-                                    <td>用户类型、渠道</td>
-                                    <td>system</td>
-                                    <td><span class="tag">新客</span><span class="tag">转化</span></td>
-                                    <td>
-                                        <button class="btn view-details" data-metric-id="70932">详情</button>
-                                        <button class="btn change-record">变更记录</button>
-                                        <button class="btn apply-permission">申请权限</button>
+                                    <td style="white-space: nowrap; position: sticky; left: 0; background-color: #FFFFFF; z-index: 1;">70932</td>
+                                    <td style="white-space: nowrap; position: sticky; left: 60px; background-color: #FFFFFF; z-index: 1;">转化率_新客</td>
+                                    <td style="white-space: nowrap;">PC端</td>
+                                    <td style="white-space: nowrap;">用户</td>
+                                    <td style="white-space: nowrap;" class="certification-status not-certified">非认证 🟡</td>
+                                    <td style="white-space: nowrap;">转化率_新客 = 新客首日订单 / UV</td>
+                                    <td style="white-space: nowrap;">2023-08-10</td>
+                                    <td style="white-space: nowrap;">数据分析</td>
+                                    <td style="white-space: nowrap;">50</td>
+                                    <td style="white-space: nowrap;">system</td>
+                                    <td style="white-space: nowrap;"><span class="tag">新客</span><span class="tag">转化</span></td>
+                                    <td style="white-space: nowrap;">用户类型、渠道</td>
+                                    <td style="white-space: nowrap; position: sticky; right: 0; background-color: #FFFFFF; z-index: 1;">
+                                        <button class="btn view-details" data-metric-id="70932" style="
+                                            padding: 6px 12px;
+                                            margin-right: 8px;
+                                            border: 1px solid #D9D9D9;
+                                            border-radius: 6px;
+                                            background-color: #FFFFFF;
+                                            color: #1D2129;
+                                            font-size: 14px;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        ">详情</button>
+                                        <button class="btn change-record" style="
+                                            padding: 6px 12px;
+                                            margin-right: 8px;
+                                            border: 1px solid #D9D9D9;
+                                            border-radius: 6px;
+                                            background-color: #FFFFFF;
+                                            color: #1D2129;
+                                            font-size: 14px;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        ">变更记录</button>
+                                        <button class="btn hide-metric" style="
+                                            padding: 6px 12px;
+                                            margin-right: 8px;
+                                            border: 1px solid #D9D9D9;
+                                            border-radius: 6px;
+                                            background-color: #FFFFFF;
+                                            color: #1D2129;
+                                            font-size: 14px;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        ">隐藏</button>
+                                        <button class="btn offline-metric" style="
+                                            padding: 6px 12px;
+                                            margin-right: 8px;
+                                            border: 1px solid #D9D9D9;
+                                            border-radius: 6px;
+                                            background-color: #FFFFFF;
+                                            color: #1D2129;
+                                            font-size: 14px;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        ">下线</button>
+                                        <button class="btn notify" style="
+                                            padding: 6px 12px;
+                                            border: 1px solid #D9D9D9;
+                                            border-radius: 6px;
+                                            background-color: #FFFFFF;
+                                            color: #1D2129;
+                                            font-size: 14px;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        ">通知</button>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                        </div>
                     </div>
 
-                    <div class="pagination">
-                        <button class="page-btn" id="prev-page">上一页</button>
-                        <button class="page-btn active" data-page="1">1</button>
-                        <button class="page-btn" data-page="2">2</button>
-                        <button class="page-btn" data-page="3">3</button>
-                        <button class="page-btn" id="next-page">下一页</button>
+                    <div class="pagination" style="
+                        margin-top: 16px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 8px;
+                    ">
+                        <button class="page-btn" id="prev-page" style="
+                            padding: 8px 16px;
+                            border: 1px solid #D9D9D9;
+                            border-radius: 6px;
+                            background-color: #FFFFFF;
+                            color: #1D2129;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">上一页</button>
+                        <button class="page-btn active" data-page="1" style="
+                            padding: 8px 16px;
+                            border: 1px solid #165DFF;
+                            border-radius: 6px;
+                            background-color: #165DFF;
+                            color: #FFFFFF;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">1</button>
+                        <button class="page-btn" data-page="2" style="
+                            padding: 8px 16px;
+                            border: 1px solid #D9D9D9;
+                            border-radius: 6px;
+                            background-color: #FFFFFF;
+                            color: #1D2129;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">2</button>
+                        <button class="page-btn" data-page="3" style="
+                            padding: 8px 16px;
+                            border: 1px solid #D9D9D9;
+                            border-radius: 6px;
+                            background-color: #FFFFFF;
+                            color: #1D2129;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">3</button>
+                        <button class="page-btn" id="next-page" style="
+                            padding: 8px 16px;
+                            border: 1px solid #D9D9D9;
+                            border-radius: 6px;
+                            background-color: #FFFFFF;
+                            color: #1D2129;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">下一页</button>
                     </div>
                 </div>
             </div>
@@ -1162,16 +1938,23 @@
             </div>
         </div>
 
-        <!-- 右下角悬浮按钮 -->
-        <div class="floating-action-button">
-            <button class="fab-main">创建指标</button>
-            <div class="fab-options">
-                <button class="fab-option" id="create-smart">智能生成</button>
-                <button class="fab-option" id="create-manual">手动配置</button>
+
+    </div>
+<!-- 确认弹窗 -->
+    <div id="create-metric-confirm-modal" class="confirm-modal">
+        <div class="confirm-modal-content">
+            <div class="confirm-modal-header">新建指标确认</div>
+            <div class="confirm-modal-body">
+                轻量版目前仅支持灯塔矩阵建模的方式新建指标，即将跳转灯塔，是否确认？
+            </div>
+            <div class="confirm-modal-footer">
+                <button id="modal-cancel-btn" class="modal-btn cancel">取消</button>
+                <button id="modal-confirm-btn" class="modal-btn confirm">确认</button>
             </div>
         </div>
     </div>
-</body>
+
+    </body>
 </html>
 
 <style>
@@ -1556,4 +2339,144 @@
     .fab-option:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* 层级化树结构样式 */
+    .tree-structure {
+        padding-left: 8px;
+    }
+    
+    .tree-node {
+        margin-bottom: 8px;
+    }
+    
+    .tree-node .parent-option {
+        font-weight: 500;
+        position: relative;
+        padding-left: 20px;
+    }
+    
+    .tree-node .parent-option::before {
+        content: '▶';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%) rotate(0deg);
+        font-size: 12px;
+        color: #999;
+        transition: transform 0.2s ease;
+    }
+    
+    .tree-node.collapsed .parent-option::before {
+        transform: translateY(-50%) rotate(-90deg);
+    }
+    
+    .tree-children {
+        margin-left: 20px;
+        margin-top: 4px;
+        border-left: 1px dashed #ddd;
+        padding-left: 16px;
+    }
+    
+    .tree-node.collapsed .tree-children {
+        display: none;
+    }
+    
+    .child-option {
+        font-size: 14px;
+        color: #666;
+        position: relative;
+    }
+    
+    .child-option::before {
+        content: '';
+        position: absolute;
+        left: -18px;
+        top: 8px;
+        width: 10px;
+        height: 1px;
+        background-color: #ddd;
+    }
+
+    /* 确认弹窗样式 */
+    .confirm-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .confirm-modal-content {
+        background-color: white;
+        border-radius: 12px;
+        padding: 32px;
+        width: 100%;
+        max-width: 480px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        animation: modalFadeIn 0.3s ease;
+    }
+    
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .confirm-modal-header {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1D2129;
+        margin-bottom: 16px;
+    }
+    
+    .confirm-modal-body {
+        font-size: 14px;
+        color: #4E5969;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+    
+    .confirm-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    
+    .modal-btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    
+    .modal-btn.cancel {
+        background-color: #F2F3F5;
+        color: #4E5969;
+    }
+    
+    .modal-btn.cancel:hover {
+        background-color: #E5E6EB;
+    }
+    
+    .modal-btn.confirm {
+        background-color: #165DFF;
+        color: white;
+    }
+    
+    .modal-btn.confirm:hover {
+        background-color: #0E4BDB;
     }
