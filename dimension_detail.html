@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>维度详情 - 用户性别</title>
+    <!-- 引入现代无衬线字体 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- 引入公共样式 -->
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* 页面特有样式 */
+        /* 标题区域 */
+        .dimension-header {
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .back-button {
+            background-color: #165DFF;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .back-button:hover {
+            background-color: #0E42D2;
+        }
+        
+        .dimension-title-container {
+            flex: 1;
+        }
+        
+        .dimension-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1D2129;
+        }
+        
+        .dimension-subtitle {
+            font-size: 14px;
+            color: #86909C;
+            margin-bottom: 12px;
+        }
+        
+        .dimension-badges {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .certification-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: #E8F3FF;
+            color: #165DFF;
+        }
+        
+        .certification-badge::before {
+            content: "✓";
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: #165DFF;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            text-align: center;
+            line-height: 16px;
+        }
+        
+        .heat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: #FFF2E8;
+            color: #FF7D00;
+        }
+        
+        .heat-badge::before {
+            content: "🔥";
+            font-size: 12px;
+        }
+        
+        .dimension-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .ai-interpretation-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .ai-interpretation-label {
+            background-color: #EEF4FF;
+            color: #165DFF;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+        
+        .ai-interpretation-text {
+            line-height: 1.6;
+            color: #4E5969;
+            font-size: 14px;
+        }
+        
+        /* Tab 样式 */
+        .tabs-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #F0F2F5;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #4E5969;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .tab:hover {
+            color: #165DFF;
+            background-color: #F7F8FA;
+        }
+        
+        .tab.active {
+            color: #165DFF;
+            border-bottom: 3px solid #165DFF;
+            background-color: #F7F8FA;
+        }
+        
+        .tab-content {
+            padding: 24px;
+        }
+        
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        /* 详情卡片样式 */
+        .detail-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #F0F2F5;
+        }
+        
+        .detail-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #F0F2F5;
+            color: #1D2129;
+        }
+        
+        /* 网格布局 */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .metadata-item {
+            margin-bottom: 16px;
+        }
+        
+        .metadata-label {
+            font-size: 14px;
+            color: #86909C;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        .metadata-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1D2129;
+        }
+        
+        /* 字典值表格样式 */
+        .dict-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        
+        .dict-table th,
+        .dict-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #F0F2F5;
+        }
+        
+        .dict-table th {
+            background-color: #F7F8FA;
+            font-weight: 600;
+            color: #4E5969;
+            font-size: 14px;
+        }
+        
+        .dict-table td {
+            font-size: 14px;
+            color: #1D2129;
+        }
+        
+        .dict-table tr:hover td {
+            background-color: #F7F8FA;
+        }
+        
+        /* 标签样式 */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .tag {
+            padding: 4px 12px;
+            background-color: #EEF4FF;
+            color: #165DFF;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        /* 血缘图样式 */
+        .bloodline-container {
+            border: 1px solid #F0F2F5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 16px;
+            background-color: #FAFBFC;
+        }
+        
+        .bloodline-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1D2129;
+        }
+        
+        .bloodline-graph {
+            width: 100%;
+            height: 300px;
+            background-color: white;
+            border: 1px solid #F0F2F5;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #86909C;
+            font-size: 14px;
+        }
+        
+        /* 关联指标列表 */
+        .related-metrics {
+            margin-top: 16px;
+        }
+        
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #F0F2F5;
+            transition: background-color 0.2s ease;
+        }
+        
+        .metric-item:hover {
+            background-color: #F7F8FA;
+        }
+        
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .metric-name {
+            font-weight: 500;
+            color: #1D2129;
+        }
+        
+        .metric-certification {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            background-color: #E8F3FF;
+            color: #165DFF;
+        }
+        
+        .metric-detail-link {
+            color: #165DFF;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .metric-detail-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* 变更记录表格 */
+        .change-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        
+        .change-table th,
+        .change-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #F0F2F5;
+        }
+        
+        .change-table th {
+            background-color: #F7F8FA;
+            font-weight: 600;
+            color: #4E5969;
+            font-size: 14px;
+        }
+        
+        .change-table td {
+            font-size: 14px;
+            color: #1D2129;
+        }
+        
+        .change-table tr:hover td {
+            background-color: #F7F8FA;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 1200px) {
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dimension-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 16px;
+            }
+            
+            .dimension-badges {
+                flex-wrap: wrap;
+            }
+            
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-nav">
+        <div class="nav-item" data-section="market">指标市场</div>
+        <div class="nav-item active" data-section="modeling">指标建模</div>
+        <div class="nav-item" data-section="application">指标应用</div>
+        <div class="nav-item" data-section="governance">指标治理</div>
+        <div class="nav-item" data-section="system">系统管理</div>
+    </div>
+
+    <!-- 侧边导航栏 -->
+    <div class="side-nav" id="side-nav">
+        <div class="side-nav-content" id="market-content" style="display: none;">
+            <div class="side-nav-item" data-page="map" onclick="window.location.href='index.html'">指标市场</div>
+        </div>
+
+        <div class="side-nav-content" id="modeling-content" style="display: block;">
+            <div class="side-nav-item" data-page="metric-management" onclick="window.location.href='metric_management.html'">指标管理</div>
+            <div class="side-nav-item active" data-page="dimension-management" onclick="window.location.href='dimension_management.html'">维度管理</div>
+            <div class="side-nav-item" data-page="metric-certification" onclick="window.location.href='metric_certification.html'">指标认证</div>
+            <div class="side-nav-item" data-page="metric-permission" onclick="window.location.href='metric_permission.html'">指标权限</div>
+        </div>
+
+        <div class="side-nav-content" id="application-content" style="display: none;">
+            <div class="side-nav-item" data-page="service-market" onclick="window.location.href='service_market.html'">服务市场</div>
+            <div class="side-nav-item" data-page="metric-api" onclick="window.location.href='metric_api.html'">指标API服务</div>
+            <div class="side-nav-item" data-page="mcp-factory" onclick="window.location.href='mcp_factory.html'">MCP工场</div>
+            <div class="side-nav-item" data-page="agent-market" onclick="window.location.href='agent_market.html'">Agent市场</div>
+        </div>
+
+        <div class="side-nav-content" id="governance-content" style="display: none;">
+            <div class="side-nav-item" data-page="governance" onclick="window.location.href='governance.html'">指标治理</div>
+        </div>
+
+        <div class="side-nav-content" id="system-content" style="display: none;">
+            <div class="side-nav-item" data-page="category-system" onclick="window.location.href='category_system.html'">指标分类体系</div>
+            <div class="side-nav-item" data-page="metric-tag" onclick="window.location.href='metric_tag.html'">指标标签</div>
+            <div class="side-nav-item" data-page="role-configuration" onclick="window.location.href='role_configuration.html'">角色配置</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- 维度标题区域 -->
+        <div class="dimension-header">
+            <button class="back-button" onclick="window.location.href='dimension_management.html'">返回维度列表</button>
+            
+            <div class="dimension-title-container">
+                <div class="dimension-title">用户性别</div>
+                <div class="dimension-subtitle">用户属性的基本维度，用于用户特征分析和行为洞察</div>
+                
+                <div class="dimension-badges">
+                    <div class="certification-badge">已认证</div>
+                    <div class="heat-badge">热度: 95%</div>
+                    <div class="tags">
+                        <span class="tag">用户属性</span>
+                        <span class="tag">基础维度</span>
+                        <span class="tag">常用</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dimension-actions">
+                <button class="btn btn-outline">编辑</button>
+                <button class="btn btn-primary">下线</button>
+            </div>
+        </div>
+
+        <!-- Tab 容器 -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="basic-info">基础信息</div>
+                <div class="tab" data-tab="dict-values">字典值</div>
+                <div class="tab" data-tab="related-metrics">关联指标</div>
+                <div class="tab" data-tab="bloodline">血缘分析</div>
+                <div class="tab" data-tab="change-history">变更记录</div>
+                <div class="tab" data-tab="permissions">权限管理</div>
+            </div>
+            
+            <div class="tab-content">
+                <!-- 基础信息Tab -->
+                <div class="tab-panel active" id="basic-info">
+                    <div class="grid-3">
+                        <div class="detail-card">
+                            <div class="detail-card-title">基本信息</div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">维度ID</div>
+                                <div class="metadata-value">dim_user_gender</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">维度名称</div>
+                                <div class="metadata-value">用户性别</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">业务域</div>
+                                <div class="metadata-value">用户管理</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">主题域</div>
+                                <div class="metadata-value">用户属性</div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-card-title">管理信息</div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">负责人</div>
+                                <div class="metadata-value">张三</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">创建时间</div>
+                                <div class="metadata-value">2023-06-15 14:30:00</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">最后更新时间</div>
+                                <div class="metadata-value">2023-12-08 10:15:30</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">认证时间</div>
+                                <div class="metadata-value">2023-07-20 16:45:00</div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-card-title">使用信息</div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">使用热度</div>
+                                <div class="metadata-value">95% (高)</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">关联指标数</div>
+                                <div class="metadata-value">32个</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">数据来源</div>
+                                <div class="metadata-value">用户注册信息</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">更新频率</div>
+                                <div class="metadata-value">实时更新</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-card-title">维度描述</div>
+                        <p style="color: #4E5969; line-height: 1.6;">
+                            该维度用于标识平台用户的性别属性，是用户基础画像的重要组成部分。通过该维度可以进行用户性别分布分析、性别偏好分析、不同性别用户行为差异分析等，为产品设计、运营策略制定和个性化推荐提供数据支持。数据来源于用户注册时填写的性别信息，以及后续行为分析推断的性别属性。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 字典值Tab -->
+                <div class="tab-panel" id="dict-values">
+                    <div class="detail-card">
+                        <div class="detail-card-title">字典值列表</div>
+                        <table class="dict-table">
+                            <thead>
+                                <tr>
+                                    <th>值编码</th>
+                                    <th>值名称</th>
+                                    <th>描述</th>
+                                    <th>使用占比</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>男</td>
+                                    <td>男性用户</td>
+                                    <td>52%</td>
+                                    <td>
+                                        <button class="btn btn-text" style="padding: 2px 8px;">编辑</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>女</td>
+                                    <td>女性用户</td>
+                                    <td>43%</td>
+                                    <td>
+                                        <button class="btn btn-text" style="padding: 2px 8px;">编辑</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>0</td>
+                                    <td>未知</td>
+                                    <td>未填写或无法确定性别</td>
+                                    <td>5%</td>
+                                    <td>
+                                        <button class="btn btn-text" style="padding: 2px 8px;">编辑</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-card-title">字典值说明</div>
+                        <p style="color: #4E5969; line-height: 1.6;">
+                            本维度采用数字编码表示不同性别，其中1代表男，2代表女，0代表未知。值编码设计简洁明了，便于数据存储和计算。在数据分析过程中，可以通过这些编码快速识别和统计不同性别的用户群体特征和行为差异。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 关联指标Tab -->
+                <div class="tab-panel" id="related-metrics">
+                    <div class="detail-card">
+                        <div class="detail-card-title">关联指标列表 (32个)</div>
+                        <div class="related-metrics">
+                            <div class="metric-item">
+                                <div class="metric-info">
+                                    <span class="metric-name">日活跃用户数(DAU)</span>
+                                    <span class="metric-certification">已认证</span>
+                                </div>
+                                <a href="metric_detail.html" class="metric-detail-link">查看详情</a>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-info">
+                                    <span class="metric-name">用户留存率</span>
+                                    <span class="metric-certification">已认证</span>
+                                </div>
+                                <a href="metric_detail.html" class="metric-detail-link">查看详情</a>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-info">
+                                    <span class="metric-name">用户转化率</span>
+                                    <span class="metric-certification">已认证</span>
+                                </div>
+                                <a href="metric_detail.html" class="metric-detail-link">查看详情</a>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-info">
+                                    <span class="metric-name">平均用户时长</span>
+                                    <span class="metric-certification">已认证</span>
+                                </div>
+                                <a href="metric_detail.html" class="metric-detail-link">查看详情</a>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-info">
+                                    <span class="metric-name">新增用户数</span>
+                                    <span class="metric-certification">已认证</span>
+                                </div>
+                                <a href="metric_detail.html" class="metric-detail-link">查看详情</a>
+                            </div>
+                            <!-- 可以根据需要添加更多关联指标 -->
+                        </div>
+                        
+                        <div style="margin-top: 16px; text-align: center;">
+                            <button class="btn btn-outline">查看全部32个关联指标</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 血缘分析Tab -->
+                <div class="tab-panel" id="bloodline">
+                    <div class="detail-card">
+                        <div class="detail-card-title">数据血缘图</div>
+                        <div class="bloodline-container">
+                            <div class="bloodline-title">数据流向</div>
+                            <div class="bloodline-graph">
+                                数据血缘图可视化区域
+                            </div>
+                        </div>
+                        
+                        <div class="bloodline-container" style="margin-top: 16px;">
+                            <div class="bloodline-title">上游数据源</div>
+                            <div class="related-metrics">
+                                <div class="metric-item">
+                                    <div class="metric-info">
+                                        <span class="metric-name">用户注册系统</span>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-info">
+                                        <span class="metric-name">用户行为分析系统</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 变更记录Tab -->
+                <div class="tab-panel" id="change-history">
+                    <div class="detail-card">
+                        <div class="detail-card-title">变更记录</div>
+                        <table class="change-table">
+                            <thead>
+                                <tr>
+                                    <th>变更时间</th>
+                                    <th>变更内容</th>
+                                    <th>操作人</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2023-12-08 10:15:30</td>
+                                    <td>更新维度描述和标签</td>
+                                    <td>张三</td>
+                                    <td>优化维度说明文档</td>
+                                </tr>
+                                <tr>
+                                    <td>2023-09-15 16:30:00</td>
+                                    <td>调整字典值顺序</td>
+                                    <td>李四</td>
+                                    <td>按使用占比重新排序</td>
+                                </tr>
+                                <tr>
+                                    <td>2023-07-20 16:45:00</td>
+                                    <td>维度认证通过</td>
+                                    <td>王五</td>
+                                    <td>完成维度质量审核</td>
+                                </tr>
+                                <tr>
+                                    <td>2023-06-15 14:30:00</td>
+                                    <td>创建维度及基础字典值</td>
+                                    <td>张三</td>
+                                    <td>初始化用户性别维度</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 权限管理Tab -->
+                <div class="tab-panel" id="permissions">
+                    <div class="detail-card">
+                        <div class="detail-card-title">权限配置</div>
+                        <div class="grid-2">
+                            <div>
+                                <div class="metadata-item">
+                                    <div class="metadata-label">查看权限</div>
+                                    <div class="metadata-value">所有用户</div>
+                                </div>
+                                <div class="metadata-item">
+                                    <div class="metadata-label">编辑权限</div>
+                                    <div class="metadata-value">管理员、数据分析师</div>
+                                </div>
+                                <div class="metadata-item">
+                                    <div class="metadata-label">下线权限</div>
+                                    <div class="metadata-value">管理员、维度负责人</div>
+                                </div>
+                                <div class="metadata-item">
+                                    <div class="metadata-label">认证权限</div>
+                                    <div class="metadata-value">管理员、认证委员会成员</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="metadata-item">
+                                    <div class="metadata-label">访问统计</div>
+                                    <div class="metadata-value">今日访问: 128次<br>本周访问: 856次<br>本月访问: 3,245次</div>
+                                </div>
+                                <div class="metadata-item">
+                                    <div class="metadata-label">最近访问用户</div>
+                                    <div class="metadata-value">张三 (10分钟前)<br>李四 (30分钟前)<br>王五 (2小时前)<br>赵六 (昨天)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换顶部导航时显示对应的侧边菜单
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有顶部导航的active类
+                document.querySelectorAll('.nav-item').forEach(navItem => {
+                    navItem.classList.remove('active');
+                });
+                // 添加当前项的active类
+                this.classList.add('active');
+                
+                // 隐藏所有侧边内容
+                document.querySelectorAll('.side-nav-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // 显示对应的侧边内容
+                const section = this.getAttribute('data-section');
+                document.getElementById(section + '-content').style.display = 'block';
+            });
+        });
+        
+        // 解析URL参数
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+        
+        // 模拟维度数据
+        const dimensionData = {
+            'dim_user_gender': {
+                name: '用户性别',
+                subtitle: '用户属性的基本维度，用于用户特征分析和行为洞察',
+                description: '该维度用于标识平台用户的性别属性，是用户基础画像的重要组成部分。通过该维度可以进行用户性别分布分析、性别偏好分析、不同性别用户行为差异分析等，为产品设计、运营策略制定和个性化推荐提供数据支持。数据来源于用户注册时填写的性别信息，以及后续行为分析推断的性别属性。',
+                businessDomain: '用户管理',
+                subjectDomain: '用户属性',
+                owner: '张三',
+                createTime: '2023-06-15 14:30:00',
+                updateTime: '2023-12-08 10:15:30',
+                certifyTime: '2023-07-20 16:45:00',
+                heat: '95',
+                metricsCount: '32',
+                dataSource: '用户注册信息',
+                updateFrequency: '实时更新',
+                tags: ['用户属性', '基础维度', '常用'],
+                certificationStatus: '已认证'
+            },
+            'dim_product_category': {
+                name: '产品分类',
+                subtitle: '商品属性的重要维度，用于商品分类管理和销售分析',
+                description: '该维度用于标识平台商品的分类属性，是商品管理和销售分析的基础。通过该维度可以进行商品分类销售额分析、各分类商品库存管理、热门分类识别等，为商品采购、促销策略制定和库存优化提供数据支持。数据来源于商品管理系统中的分类信息。',
+                businessDomain: '商品中心',
+                subjectDomain: '商品属性',
+                owner: '李四',
+                createTime: '2023-05-20 09:15:00',
+                updateTime: '2023-11-30 14:20:00',
+                certifyTime: '2023-07-10 10:30:00',
+                heat: '90',
+                metricsCount: '45',
+                dataSource: '商品管理系统',
+                updateFrequency: '每日更新',
+                tags: ['商品', '分类', '常用'],
+                certificationStatus: '已认证'
+            },
+            'dim_region_province': {
+                name: '省份地区',
+                subtitle: '地理信息维度，用于区域分析和地域化运营',
+                description: '该维度用于标识地理位置信息中的省份属性，是区域分析和地域化运营的基础。通过该维度可以进行区域销售分析、用户地域分布分析、物流成本分析等，为市场拓展、运营策略制定和资源配置提供数据支持。数据来源于用户注册信息和物流配送地址。',
+                businessDomain: '地理信息',
+                subjectDomain: '区域划分',
+                owner: '王五',
+                createTime: '2023-04-10 11:45:00',
+                updateTime: '2023-10-15 08:30:00',
+                certifyTime: '2023-06-05 15:20:00',
+                heat: '98',
+                metricsCount: '78',
+                dataSource: '用户注册信息、物流配送地址',
+                updateFrequency: '每月更新',
+                tags: ['地理', '位置', '常用'],
+                certificationStatus: '已认证'
+            }
+        };
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取URL中的维度ID参数
+            const dimensionId = getUrlParameter('dimensionId') || 'dim_user_gender';
+            
+            // 获取对应的维度数据
+            const dimension = dimensionData[dimensionId] || dimensionData['dim_user_gender'];
+            
+            // 更新页面标题
+            document.title = `维度详情 - ${dimension.name}`;
+            
+            // 更新维度标题区域
+            document.querySelector('.dimension-title').textContent = dimension.name;
+            document.querySelector('.dimension-subtitle').textContent = dimension.subtitle;
+            
+            // 更新维度基本信息
+            const metadataLabels = document.querySelectorAll('.metadata-label');
+            metadataLabels.forEach(label => {
+                if (label.textContent === '维度ID') {
+                    label.nextElementSibling.textContent = dimensionId;
+                } else if (label.textContent === '维度名称') {
+                    label.nextElementSibling.textContent = dimension.name;
+                } else if (label.textContent === '业务域') {
+                    label.nextElementSibling.textContent = dimension.businessDomain;
+                } else if (label.textContent === '主题域') {
+                    label.nextElementSibling.textContent = dimension.subjectDomain;
+                } else if (label.textContent === '负责人') {
+                    label.nextElementSibling.textContent = dimension.owner;
+                } else if (label.textContent === '创建时间') {
+                    label.nextElementSibling.textContent = dimension.createTime;
+                } else if (label.textContent === '最后更新时间') {
+                    label.nextElementSibling.textContent = dimension.updateTime;
+                } else if (label.textContent === '认证时间') {
+                    label.nextElementSibling.textContent = dimension.certifyTime;
+                } else if (label.textContent === '使用热度') {
+                    label.nextElementSibling.textContent = `${dimension.heat}% (高)`;
+                } else if (label.textContent === '关联指标数') {
+                    label.nextElementSibling.textContent = `${dimension.metricsCount}个`;
+                } else if (label.textContent === '数据来源') {
+                    label.nextElementSibling.textContent = dimension.dataSource;
+                } else if (label.textContent === '更新频率') {
+                    label.nextElementSibling.textContent = dimension.updateFrequency;
+                }
+            });
+            
+            // 更新热度标签
+            document.querySelector('.heat-badge').textContent = `热度: ${dimension.heat}%`;
+            
+            // 更新维度描述
+            const descriptionElement = document.querySelector('.detail-card-title + p');
+            if (descriptionElement) {
+                descriptionElement.textContent = dimension.description;
+            }
+            
+            // 更新关联指标列表标题
+            const metricsListTitle = document.querySelector('.tab-panel#related-metrics .detail-card-title');
+            if (metricsListTitle) {
+                metricsListTitle.textContent = `关联指标列表 (${dimension.metricsCount}个)`;
+            }
+            
+            // 更新底部按钮文本
+            const viewAllMetricsBtn = document.querySelector('.tab-panel#related-metrics button');
+            if (viewAllMetricsBtn) {
+                viewAllMetricsBtn.textContent = `查看全部${dimension.metricsCount}个关联指标`;
+            }
+        });
+        
+        // Tab切换功能
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有tab的active类
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                // 添加当前tab的active类
+                this.classList.add('active');
+                
+                // 隐藏所有tab面板
+                document.querySelectorAll('.tab-panel').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                
+                // 显示对应的tab面板
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

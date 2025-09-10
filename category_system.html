@@ -941,46 +941,95 @@
                 }
             });
 
-            // 标签页切换功能 - 简化版实现
-            const categoryTab = document.getElementById('category-tab');
-            const tagTab = document.getElementById('tag-tab');
-            const categoryContent = document.getElementById('category-content');
-            const tagContent = document.getElementById('tag-content');
-            
-            // 确保初始状态正确
-            categoryContent.style.display = 'block';
-            tagContent.style.display = 'none';
-            
-            // 分类管理标签点击事件
-            categoryTab.addEventListener('click', function() {
-                // 更新标签样式
-                categoryTab.classList.add('text-primary', 'border-b-2', 'border-primary');
-                categoryTab.classList.remove('text-gray-500');
-                tagTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
-                tagTab.classList.add('text-gray-500');
+            // 标签页切换功能 - 增强版实现
+            function initTabSwitch() {
+                const categoryTab = document.getElementById('category-tab');
+                const tagTab = document.getElementById('tag-tab');
+                const categoryContent = document.getElementById('category-content');
+                const tagContent = document.getElementById('tag-content');
                 
-                // 更新内容显示状态
-                categoryContent.style.display = 'block';
-                tagContent.style.display = 'none';
-            });
-            
-            // 标签管理标签点击事件
-            tagTab.addEventListener('click', function() {
-                // 更新标签样式
-                tagTab.classList.add('text-primary', 'border-b-2', 'border-primary');
-                tagTab.classList.remove('text-gray-500');
-                categoryTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
-                categoryTab.classList.add('text-gray-500');
+                // 检查所有元素是否存在
+                if (!categoryTab || !tagTab || !categoryContent || !tagContent) {
+                    console.error('标签页切换所需的DOM元素未找到');
+                    return;
+                }
                 
-                // 更新内容显示状态
-                tagContent.style.display = 'block';
-                categoryContent.style.display = 'none';
+                // 确保初始状态正确
+                function setCategoryTabActive() {
+                    // 更新标签样式
+                    categoryTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+                    categoryTab.classList.remove('text-gray-500');
+                    tagTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                    tagTab.classList.add('text-gray-500');
+                    
+                    // 重置所有可能的显示属性
+                    categoryContent.style.display = 'block';
+                    categoryContent.style.visibility = 'visible';
+                    categoryContent.style.opacity = '1';
+                    categoryContent.style.height = 'auto';
+                    categoryContent.classList.remove('hidden');
+                    
+                    tagContent.style.display = 'none';
+                    tagContent.classList.add('hidden');
+                }
                 
-                // 额外确保标签管理内容可见
-                setTimeout(function() {
+                function setTagTabActive() {
+                    // 更新标签样式
+                    tagTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+                    tagTab.classList.remove('text-gray-500');
+                    categoryTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                    categoryTab.classList.add('text-gray-500');
+                    
+                    // 重置所有可能的显示属性
                     tagContent.style.display = 'block';
-                }, 100);
-            });
+                    tagContent.style.visibility = 'visible';
+                    tagContent.style.opacity = '1';
+                    tagContent.style.height = 'auto';
+                    tagContent.classList.remove('hidden');
+                    
+                    categoryContent.style.display = 'none';
+                    categoryContent.classList.add('hidden');
+                }
+                
+                // 初始化状态
+                setCategoryTabActive();
+                
+                // 分类管理标签点击事件
+                categoryTab.addEventListener('click', function() {
+                    setCategoryTabActive();
+                });
+                
+                // 标签管理标签点击事件
+                tagTab.addEventListener('click', function() {
+                    setTagTabActive();
+                    
+                    // 强制重绘
+                    void tagContent.offsetWidth;
+                    
+                    // 额外确保标签管理内容可见
+                    setTimeout(function() {
+                        if (tagContent) {
+                            tagContent.style.display = 'block';
+                            tagContent.classList.remove('hidden');
+                        }
+                    }, 100);
+                });
+                
+                // 添加键盘支持
+                document.addEventListener('keydown', function(e) {
+                    // Alt+1 切换到分类管理，Alt+2 切换到标签管理
+                    if (e.altKey) {
+                        if (e.key === '1') {
+                            setCategoryTabActive();
+                        } else if (e.key === '2') {
+                            setTagTabActive();
+                        }
+                    }
+                });
+            }
+            
+            // 初始化标签页切换功能
+            initTabSwitch();
             
             // 初始化标签管理功能交互
             // 新增标签弹窗
@@ -1052,34 +1101,34 @@
             document.body.appendChild(editTagModal);
             
             
-            // 关闭弹窗函数
-            function closeModal(modal) {
+            // 关闭弹窗函数 - 用于标签管理弹窗
+            function closeTagModal(modal) {
                 modal.classList.add('hidden');
             }
             
             // 为弹窗添加关闭按钮事件
             document.querySelectorAll('#add-tag-modal .close-modal-btn, #add-tag-modal .cancel-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    closeModal(document.getElementById('add-tag-modal'));
+                    closeTagModal(document.getElementById('add-tag-modal'));
                 });
             });
-            
+
             document.querySelectorAll('#edit-tag-modal .close-modal-btn, #edit-tag-modal .cancel-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    closeModal(document.getElementById('edit-tag-modal'));
+                    closeTagModal(document.getElementById('edit-tag-modal'));
                 });
             });
             
             // 点击弹窗外部关闭弹窗
             document.getElementById('add-tag-modal').addEventListener('click', function(e) {
                 if (e.target === this) {
-                    closeModal(this);
+                    closeTagModal(this);
                 }
             });
-            
+
             document.getElementById('edit-tag-modal').addEventListener('click', function(e) {
                 if (e.target === this) {
-                    closeModal(this);
+                    closeTagModal(this);
                 }
             });
             
@@ -1109,7 +1158,7 @@
                 alert(`已成功添加标签：${tagName}`);
                 
                 // 关闭弹窗
-                closeModal(document.getElementById('add-tag-modal'));
+                closeTagModal(document.getElementById('add-tag-modal'));
             });
             
             // 标签编辑功能
@@ -1147,7 +1196,7 @@
                 alert(`已成功更新标签：${tagName}`);
                 
                 // 关闭弹窗
-                closeModal(document.getElementById('edit-tag-modal'));
+                closeTagModal(document.getElementById('edit-tag-modal'));
             });
             
             // 搜索标签功能
@@ -1222,7 +1271,7 @@
                 modal.classList.remove('hidden');
             }
             
-            // 关闭弹窗
+            // 关闭弹窗 - 用于关联模型弹窗
             function closeModal() {
                 modal.classList.add('hidden');
             }
@@ -1329,6 +1378,22 @@
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && !syncDwConfigModal.classList.contains('hidden')) {
                     hideSyncDwConfigModal();
+                } else if (e.key === 'Escape') {
+                    // 检查并关闭标签管理相关弹窗
+                    const addTagModal = document.getElementById('add-tag-modal');
+                    const editTagModal = document.getElementById('edit-tag-modal');
+                    const statusModal = document.getElementById('status-confirm-modal');
+                    const associateModal = document.getElementById('associate-modal');
+                    
+                    if (!addTagModal.classList.contains('hidden')) {
+                        closeTagModal(addTagModal);
+                    } else if (!editTagModal.classList.contains('hidden')) {
+                        closeTagModal(editTagModal);
+                    } else if (!statusModal.classList.contains('hidden')) {
+                        closeStatusConfirmModal();
+                    } else if (!associateModal.classList.contains('hidden')) {
+                        closeModal();
+                    }
                 }
             });
         });
