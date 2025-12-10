@@ -1,0 +1,73 @@
+.tabContent {
+  min-height: 400px;
+  padding: 16px 0;
+  overflow: visible;
+}
+
+.preview {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.preview h4 {
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.albumCard {
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.albumCard:hover {
+  border-color: #1890ff;
+}
+
+.albumCard.selected {
+  border-color: #1890ff;
+  background-color: #e6f7ff;
+}
+
+.albumHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.albumIcon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.albumCard h4 {
+  margin: 0 0 8px 0 !important;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.albumCard p {
+  margin: 0 0 12px 0 !important;
+  font-size: 13px;
+  color: #8c8c8c;
+  line-height: 1.5;
+  min-height: 40px;
+}
+
+.albumMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.albumTags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}

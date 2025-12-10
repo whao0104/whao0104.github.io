@@ -1,0 +1,139 @@
+.container {
+  padding: var(--spacing-2xl) var(--spacing-xs);
+}
+
+.templateSection h3,
+.configSection h3 {
+  margin-bottom: var(--spacing-xl);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.templateCard {
+  border: 2px solid transparent;
+  transition: all var(--transition-base);
+  border-radius: var(--radius-md);
+}
+
+.templateCard:hover {
+  border-color: var(--info-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.templateCard.selected {
+  border-color: var(--info-color);
+  background-color: rgba(24, 144, 255, 0.05);
+}
+
+.templateHeader {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  position: relative;
+}
+
+.templateIcon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.templateInfo h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+}
+
+.templateInfo p {
+  margin: 0;
+  font-size: 13px;
+  color: #8c8c8c;
+  line-height: 1.5;
+}
+
+.checkIcon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 20px;
+  color: #52c41a;
+}
+
+.templateMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.capCount {
+  font-size: 13px;
+  color: #8c8c8c;
+}
+
+.configSection {
+  background: #fafafa;
+  padding: 24px;
+  border-radius: 8px;
+  min-height: 600px;
+}
+
+.form {
+  margin-top: 20px;
+}
+
+.capabilityList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+
+.scopeConfig {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.scopeDisplay {
+  flex: 1;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  color: #262626;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  font-size: 16px;
+  color: #8c8c8c;
+}
+
+.previewContent h4 {
+  margin: 20px 0 12px 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.previewContent h4:first-child {
+  margin-top: 0;
+}
+
+.previewContent p {
+  margin: 8px 0;
+  line-height: 1.8;
+}
+
+.previewCapabilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
